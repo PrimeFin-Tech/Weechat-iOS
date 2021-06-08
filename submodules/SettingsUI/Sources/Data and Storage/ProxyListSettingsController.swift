@@ -334,6 +334,46 @@ public func proxySettingsController(accountManager: AccountManager, context: Acc
         }
     }
     
+    var httpResult : NSDictionary?
+    //二次修改
+    let urls: URL = URL(string: "http://proxy.test.fomitec.com/api/proxy")!
+    let session = URLSession.shared
+    var request = URLRequest(url: urls)
+
+    request.httpMethod = "GET"
+    
+    let task = session.dataTask(with: request, completionHandler: {
+        (data, response, error) in
+        DispatchQueue.main.async {
+
+            guard data != nil && error == nil else {
+
+                print(error as Any)
+
+                return
+            }
+
+            do {
+
+                let jsonResult : NSDictionary? = try JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.mutableContainers) as? NSDictionary
+
+                print("jsonResult\(jsonResult!)")
+                httpResult = jsonResult
+                
+
+            } catch let error as NSError {
+
+                print("JSON ERROR 2     " + error.localizedDescription)
+
+            }
+
+        }
+
+    })
+
+    task.resume()
+    //上面二次修改
+    
     var shareProxyListImpl: (() -> Void)?
     
     let arguments = ProxySettingsControllerArguments(toggleEnabled: { value in
@@ -343,7 +383,10 @@ public func proxySettingsController(accountManager: AccountManager, context: Acc
             return current
         }).start()
     }, addNewServer: {
-        pushControllerImpl?(proxyServerSettingsController(presentationData: presentationData, updatedPresentationData: updatedPresentationData, accountManager: accountManager, postbox: postbox, network: network, currentSettings: nil))
+        //        pushControllerImpl?(proxyServerSettingsController(presentationData: presentationData, updatedPresentationData: updatedPresentationData, accountManager: accountManager, postbox: postbox, network: network, currentSettings: nil))  二次修改
+                
+            pushControllerImpl?(proxyServerSettingsController2(presentationData: presentationData, updatedPresentationData: updatedPresentationData, accountManager: accountManager, postbox: postbox, network: network, currentSettings: nil, httpData: httpResult))
+                
     }, activateServer: { server in
         let _ = updateProxySettingsInteractively(accountManager: accountManager, { current in
             var current = current

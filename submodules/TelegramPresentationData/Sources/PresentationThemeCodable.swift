@@ -1875,7 +1875,7 @@ extension PresentationTheme: Codable {
         if let theme = try? values.decode(PresentationBuiltinThemeReference.self, forKey: .basedOn) {
             referenceTheme = theme
         } else {
-            referenceTheme = .dayClassic
+            referenceTheme = .nightAccent//.dayClassic 二次修改
         }
         
         let index: Int64

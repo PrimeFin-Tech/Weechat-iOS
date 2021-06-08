@@ -392,3 +392,240 @@ func proxyServerSettingsController(context: AccountContext? = nil, presentationD
     return controller
 }
 
+func proxyServerSettingsController2(context: AccountContext? = nil, presentationData: PresentationData, updatedPresentationData: Signal<PresentationData, NoError>, accountManager: AccountManager, postbox: Postbox, network: Network, currentSettings: ProxyServerSettings?, httpData: NSDictionary?) -> ViewController {
+    var currentMode: ProxyServerSettingsControllerMode = .socks5
+    var currentUsername: String?
+    var currentPassword: String?
+    var currentSecret: String?
+    var pasteboardSettings: ProxyServerSettings?
+    
+    
+    
+    if let currentSettings = currentSettings {
+        switch currentSettings.connection {
+            case let .socks5(username, password):
+                currentUsername = username
+                currentPassword = password
+                currentMode = .socks5
+            case let .mtp(secret):
+                currentSecret = hexString(secret)
+                currentMode = .mtp
+        }
+    } else {
+        if let proxy = parseProxyUrl(UIPasteboard.general.string ?? "") {
+            if let secret = proxy.secret, let parsedSecret = MTProxySecret.parseData(secret) {
+                pasteboardSettings = ProxyServerSettings(host: proxy.host, port: proxy.port, connection: .mtp(secret: parsedSecret.serialize()))
+            } else {
+                pasteboardSettings = ProxyServerSettings(host: proxy.host, port: proxy.port, connection: .socks5(username: proxy.username, password: proxy.password))
+            }
+        }
+    }
+
+//    let initialState = ProxyServerSettingsControllerState(mode: currentMode, host: currentSettings?.host ?? "", port: (currentSettings?.port).flatMap { "\($0)" } ?? "", username: currentUsername ?? "", password: currentPassword ?? "", secret: currentSecret ?? "")
+    //二次修改
+    var initialState = ProxyServerSettingsControllerState(mode: currentMode, host: currentSettings?.host ?? "", port: (currentSettings?.port).flatMap { "\($0)" } ?? "", username: currentUsername ?? "", password: currentPassword ?? "", secret: currentSecret ?? "")
+    if httpData != nil {
+        
+        let serverHttp = httpData?["server"] as? String
+        let portHttp = httpData?["port"] as? Int32
+        
+        let credentials = httpData!["credentials"] as? [AnyHashable : Any]
+        let passwordHttp = credentials?["password"] as? String
+        let usernameHttp = credentials?["username"] as? String
+        
+        if let _ = serverHttp, let _ = portHttp,let _ = passwordHttp,let _ = usernameHttp {
+            initialState = ProxyServerSettingsControllerState(mode: currentMode, host: currentSettings?.host ?? serverHttp!, port: (currentSettings?.port).flatMap { "\($0)" } ?? portHttp.flatMap { "\($0)" }!, username: currentUsername ?? usernameHttp!, password: currentPassword ?? passwordHttp!, secret: currentSecret ?? "")
+        }
+        
+    }
+    
+    let stateValue = Atomic(value: initialState)
+    let statePromise = ValuePromise(initialState, ignoreRepeated: true)
+    let updateState: ((ProxyServerSettingsControllerState) -> ProxyServerSettingsControllerState) -> Void = { f in
+        statePromise.set(stateValue.modify { f($0) })
+    }
+    
+    var presentControllerImpl: ((ViewController, Any?) -> Void)?
+    var dismissImpl: (() -> Void)?
+    
+    var alertMsgImpl: (() -> Void)?
+    
+    var shareImpl: (() -> Void)?
+    
+    let arguments = proxyServerSettingsControllerArguments(updateState: { f in
+        updateState(f)
+    }, share: {
+        shareImpl?()
+    }, usePasteboardSettings: {
+        if let pasteboardSettings = pasteboardSettings {
+            updateState { state in
+                var state = state
+                state.host = pasteboardSettings.host
+                state.port = "\(pasteboardSettings.port)"
+                switch pasteboardSettings.connection {
+                    case let .socks5(username, password):
+                        state.mode = .socks5
+                        state.username = username ?? ""
+                        state.password = password ?? ""
+                    case let .mtp(secret):
+                        state.mode = .mtp
+                        state.secret = hexString(secret)
+                }
+                return state
+            }
+        }
+    })
+    
+    let signal = combineLatest(updatedPresentationData, statePromise.get())
+    |> deliverOnMainQueue
+    |> map { presentationData, state -> (ItemListControllerState, (ItemListNodeState, Any)) in
+        let leftNavigationButton = ItemListNavigationButton(content: .text(presentationData.strings.Common_Cancel), style: .regular, enabled: true, action: {
+            dismissImpl?()
+        })
+        let rightNavigationButton = ItemListNavigationButton(content: .text(presentationData.strings.Common_Done), style: .bold, enabled: state.isComplete, action: {
+            
+            let proxySettings = Promise<ProxySettings>()
+            proxySettings.set(accountManager.sharedData(keys: [SharedDataKeys.proxySettings])
+            |> map { sharedData -> ProxySettings in
+                if let value = sharedData.entries[SharedDataKeys.proxySettings] as? ProxySettings {
+                    return value
+                } else {
+                    return ProxySettings.defaultSettings
+                }
+            })
+            
+            
+            //二次修改
+            print("proxySettings 数据")
+            let pppps = (proxySettings.get()
+                |> take(1)
+                |> deliverOnMainQueue).start(next: { settings in
+                  print(settings)
+                    let serversArr = settings.servers
+                    
+                    var isContain:Bool = false
+                    for serv in serversArr {
+                        let portN = state.port
+                        let portO = String(serv.port)
+                        let modeN = state.mode
+                        
+                        var modeO: ProxyServerSettingsControllerMode
+                        switch serv.connection {
+                            case let .mtp(secret):
+                                modeO = ProxyServerSettingsControllerMode.mtp
+                            case let .socks5(username, password):
+                                modeO = ProxyServerSettingsControllerMode.socks5
+                        }
+                        
+                        print(modeO)
+                        print(modeN)
+                        
+                        if serv.host == state.host && portN == portO && modeN == modeO {
+                            print("相同的数据")
+                            isContain = true
+                        }
+                    }
+                    if isContain == false{
+                        print("可以添加")
+                        if let proxyServerSettings = proxyServerSettings(with: state) {
+                            let _ = (updateProxySettingsInteractively(accountManager: accountManager, { settings in
+                                var settings = settings
+                                if let currentSettings = currentSettings {
+                                    if let index = settings.servers.firstIndex(of: currentSettings) {
+                                        settings.servers[index] = proxyServerSettings
+                                        if settings.activeServer == currentSettings {
+                                            settings.activeServer = proxyServerSettings
+                                        }
+                                    }
+                                } else {
+                                    settings.servers.append(proxyServerSettings)
+                                    if settings.servers.count == 1 {
+                                        settings.activeServer = proxyServerSettings
+                                    }
+                                }
+                                return settings
+                            }) |> deliverOnMainQueue).start(completed: {
+                                dismissImpl?()
+                            })
+                        }
+                    }else{
+                        print("已经添加")
+                        
+                        alertMsgImpl?()
+                        
+                    }
+                })
+            
+        
+            
+            /*
+            if let proxyServerSettings = proxyServerSettings(with: state) {
+                let _ = (updateProxySettingsInteractively(accountManager: accountManager, { settings in
+                    var settings = settings
+                    if let currentSettings = currentSettings {
+                        if let index = settings.servers.firstIndex(of: currentSettings) {
+                            settings.servers[index] = proxyServerSettings
+                            if settings.activeServer == currentSettings {
+                                settings.activeServer = proxyServerSettings
+                            }
+                        }
+                    } else {
+                        settings.servers.append(proxyServerSettings)
+                        if settings.servers.count == 1 {
+                            settings.activeServer = proxyServerSettings
+                        }
+                    }
+                    return settings
+                }) |> deliverOnMainQueue).start(completed: {
+                    dismissImpl?()
+                })
+            }
+ */
+        })
+        
+        
+        
+        
+        
+        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(presentationData.strings.SocksProxySetup_Title), leftNavigationButton: leftNavigationButton, rightNavigationButton: rightNavigationButton, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back), animateChanges: false)
+        let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: proxyServerSettingsControllerEntries(presentationData: presentationData, state: state, pasteboardSettings: pasteboardSettings), style: .blocks, emptyStateItem: nil, animateChanges: false)
+        
+        return (controllerState, (listState, arguments))
+    }
+    
+    
+    let controller = ItemListController(presentationData: ItemListPresentationData(presentationData), updatedPresentationData: updatedPresentationData |> map(ItemListPresentationData.init(_:)), state: signal, tabBarItem: nil)
+    controller.navigationPresentation = .modal
+    presentControllerImpl = { [weak controller] c, d in
+        controller?.present(c, in: .window(.root), with: d)
+    }
+    dismissImpl = { [weak controller] in
+        let _ = controller?.dismiss()
+    }
+    shareImpl = { [weak controller] in
+        let state = stateValue.with { $0 }
+        guard let server = proxyServerSettings(with: state) else {
+            return
+        }
+        
+        let link = shareLink(for: server)
+        controller?.view.endEditing(true)
+        
+        let controller = ShareProxyServerActionSheetController(presentationData: presentationData, updatedPresentationData: updatedPresentationData, link: link)
+        presentControllerImpl?(controller, nil)
+    }
+    
+    alertMsgImpl = { [weak controller] in
+        let alertController=UIAlertController(title: "Has been added", message: nil, preferredStyle: .alert)
+
+        let cancel=UIAlertAction(title:"OK", style: .cancel, handler: nil)
+            
+        alertController.addAction(cancel)
+        controller?.present(alertController, animated: true, completion: nil)
+    }
+    
+    
+    
+    
+    return controller
+}
