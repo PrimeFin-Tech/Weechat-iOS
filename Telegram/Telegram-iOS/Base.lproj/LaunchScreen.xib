@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
-        <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -12,8 +11,23 @@
         <view contentMode="scaleToFill" interfaceStyle="light" id="O8c-13-3vw">
             <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-            <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+            <subviews>
+                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="screen3x.png" translatesAutoresizingMaskIntoConstraints="NO" id="C3c-Vs-KMQ">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                    <color key="backgroundColor" red="0.93333333333333335" green="0.14117647058823529" blue="0.14117647058823529" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                </imageView>
+            </subviews>
+            <color key="backgroundColor" red="0.96862745098039216" green="0.96862745098039216" blue="0.96862745098039216" alpha="1" colorSpace="calibratedRGB"/>
+            <constraints>
+                <constraint firstItem="C3c-Vs-KMQ" firstAttribute="top" secondItem="O8c-13-3vw" secondAttribute="top" id="53N-l8-fag"/>
+                <constraint firstItem="C3c-Vs-KMQ" firstAttribute="leading" secondItem="O8c-13-3vw" secondAttribute="leading" id="Weg-Bs-KZf"/>
+                <constraint firstAttribute="bottom" secondItem="C3c-Vs-KMQ" secondAttribute="bottom" id="vc0-e9-SRo"/>
+                <constraint firstAttribute="trailing" secondItem="C3c-Vs-KMQ" secondAttribute="trailing" id="xoY-WH-kR2"/>
+            </constraints>
             <point key="canvasLocation" x="139" y="117"/>
         </view>
     </objects>
+    <resources>
+        <image name="screen3x.png" width="1152" height="1152"/>
+    </resources>
 </document>

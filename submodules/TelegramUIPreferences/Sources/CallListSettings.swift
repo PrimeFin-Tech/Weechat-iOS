@@ -6,8 +6,9 @@ public struct CallListSettings: PreferencesEntry, Equatable {
     public var _showTab: Bool?
     public var defaultShowTab: Bool?
     
+    //显示call页面
     public static var defaultSettings: CallListSettings {
-        return CallListSettings(showTab: false)
+        return CallListSettings(showTab: true)
     }
     
     public var showTab: Bool {

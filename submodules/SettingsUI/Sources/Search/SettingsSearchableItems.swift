@@ -231,9 +231,9 @@ private func callSearchableItems(context: AccountContext) -> [SettingsSearchable
         SettingsSearchableItem(id: .calls(0), title: strings.CallSettings_RecentCalls, alternate: synonyms(strings.SettingsSearch_Synonyms_Calls_Title), icon: icon, breadcrumbs: [], present: { context, _, present in
             presentCallSettings(context, present)
         }),
-        SettingsSearchableItem(id: .calls(1), title: strings.CallSettings_TabIcon, alternate: synonyms(strings.SettingsSearch_Synonyms_Calls_CallTab), icon: icon, breadcrumbs: [strings.CallSettings_RecentCalls], present: { context, _, present in
-            presentCallSettings(context, present)
-        })
+//        SettingsSearchableItem(id: .calls(1), title: strings.CallSettings_TabIcon, alternate: synonyms(strings.SettingsSearch_Synonyms_Calls_CallTab), icon: icon, breadcrumbs: [strings.CallSettings_RecentCalls], present: { context, _, present in
+//            presentCallSettings(context, present)
+//        })
     ]
 }
 

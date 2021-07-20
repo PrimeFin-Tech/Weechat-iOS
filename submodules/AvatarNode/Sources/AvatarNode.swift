@@ -18,6 +18,10 @@ private let savedMessagesIcon = generateTintedImage(image: UIImage(bundleImageNa
 private let archivedChatsIcon = UIImage(bundleImageName: "Avatar/ArchiveAvatarIcon")?.precomposed()
 private let repliesIcon = generateTintedImage(image: UIImage(bundleImageName: "Avatar/RepliesMessagesIcon"), color: .white)
 
+private let infoMoreIcon = generateTintedImage(image: UIImage(bundleImageName: "right_more"), color: .white)
+
+
+
 public func avatarPlaceholderFont(size: CGFloat) -> UIFont {
     return Font.with(size: size, design: .round, traits: [.bold])
 }
@@ -80,6 +84,9 @@ private let savedMessagesColors: NSArray = [
     UIColor(rgb: 0x2a9ef1).cgColor, UIColor(rgb: 0x72d5fd).cgColor
 ]
 
+private let newIconColors: NSArray = [
+    UIColor(rgb: 0xDDDDDD).cgColor, UIColor(rgb: 0xB3B3B3).cgColor
+]
 public enum AvatarNodeExplicitIcon {
     case phone
 }
@@ -111,6 +118,7 @@ private enum AvatarNodeIcon: Equatable {
     case editAvatarIcon
     case deletedIcon
     case phoneIcon
+    case infoMoreIcon
 }
 
 public enum AvatarNodeImageOverride: Equatable {
@@ -122,6 +130,7 @@ public enum AvatarNodeImageOverride: Equatable {
     case editAvatarIcon
     case deletedIcon
     case phoneIcon
+    case infoMoreIcon
 }
 
 public enum AvatarNodeColorOverride {
@@ -233,6 +242,10 @@ public final class AvatarNode: ASDisplayNode {
         
         self.imageNode.isLayerBacked = true
         self.addSubnode(self.imageNode)
+        
+        
+        self.clipsToBounds = true
+        self.cornerRadius = 5.0
     }
     
     override public func didLoad() {
@@ -304,7 +317,7 @@ public final class AvatarNode: ASDisplayNode {
         self.imageNode.isHidden = true
     }
     
-    public func setPeer(context: AccountContext, theme: PresentationTheme, peer: Peer?, authorOfMessage: MessageReference? = nil, overrideImage: AvatarNodeImageOverride? = nil, emptyColor: UIColor? = nil, clipStyle: AvatarNodeClipStyle = .round, synchronousLoad: Bool = false, displayDimensions: CGSize = CGSize(width: 60.0, height: 60.0), storeUnrounded: Bool = false) {
+    public func setPeer(context: AccountContext, theme: PresentationTheme, peer: Peer?, authorOfMessage: MessageReference? = nil, overrideImage: AvatarNodeImageOverride? = nil, emptyColor: UIColor? = nil, clipStyle: AvatarNodeClipStyle = .none, synchronousLoad: Bool = false, displayDimensions: CGSize = CGSize(width: 60.0, height: 60.0), storeUnrounded: Bool = false) {
         var synchronousLoad = synchronousLoad
         var representation: TelegramMediaImageRepresentation?
         var icon = AvatarNodeIcon.none
@@ -333,6 +346,9 @@ public final class AvatarNode: ASDisplayNode {
                 case .phoneIcon:
                     representation = nil
                     icon = .phoneIcon
+                case .infoMoreIcon:
+                    representation = nil
+                    icon = .infoMoreIcon
             }
         } else if peer?.restrictionText(platform: "ios", contentSettings: context.currentContentSettings.with { $0 }) == nil {
             representation = peer?.smallProfileImage
@@ -466,19 +482,35 @@ public final class AvatarNode: ASDisplayNode {
             colorIndex = -1
         }
         
-        let colorsArray: NSArray
+        var colorsArray: NSArray
+        //  sss
+        colorsArray = newIconColors
         var iconColor = UIColor.white
         if let parameters = parameters as? AvatarNodeParameters, parameters.icon != .none {
             if case .deletedIcon = parameters.icon {
                 colorsArray = grayscaleColors
+                //  sss
+                colorsArray = newIconColors
             } else if case .phoneIcon = parameters.icon {
                 colorsArray = grayscaleColors
+                //  sss
+                colorsArray = newIconColors
             } else if case .savedMessagesIcon = parameters.icon {
                 colorsArray = savedMessagesColors
+                //  sss
+                colorsArray = newIconColors
             } else if case .repliesIcon = parameters.icon {
                 colorsArray = savedMessagesColors
+                //  sss
+                colorsArray = newIconColors
+            } else if case .infoMoreIcon = parameters.icon {
+              
+                //  sss
+                colorsArray = [UIColor(rgb: 0xf7f7f7).cgColor,UIColor(rgb: 0xf7f7f7).cgColor]
             } else if case .editAvatarIcon = parameters.icon, let theme = parameters.theme {
                 colorsArray = [theme.list.itemAccentColor.withAlphaComponent(0.1).cgColor, theme.list.itemAccentColor.withAlphaComponent(0.1).cgColor]
+                //  sss
+                colorsArray = newIconColors
             } else if case let .archivedChatsIcon(hiddenByDefault) = parameters.icon, let theme = parameters.theme {
                 let backgroundColors: (UIColor, UIColor)
                 if hiddenByDefault {
@@ -489,9 +521,14 @@ public final class AvatarNode: ASDisplayNode {
                     backgroundColors = theme.chatList.pinnedArchiveAvatarColor.backgroundColors.colors
                 }
                 colorsArray = [backgroundColors.1.cgColor, backgroundColors.0.cgColor]
+                //  sss
+                colorsArray = newIconColors
             } else {
                 colorsArray = grayscaleColors
+                //  sss
+                colorsArray = newIconColors
             }
+            
         } else if colorIndex == -1 {
             if let parameters = parameters as? AvatarNodeParameters, let theme = parameters.theme {
                 let colors = theme.chatList.unpinnedArchiveAvatarColor.backgroundColors.colors
@@ -499,18 +536,34 @@ public final class AvatarNode: ASDisplayNode {
             } else {
                 colorsArray = grayscaleColors
             }
+            //  sss
+            colorsArray = newIconColors
         } else {
             colorsArray = AvatarNode.gradientColors[colorIndex % AvatarNode.gradientColors.count]
+            //  sss
+            colorsArray = newIconColors
         }
         
-        var locations: [CGFloat] = [1.0, 0.0]
+        
+        
+        var locations: [CGFloat] = [0.0, 1.0]
         
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let gradient = CGGradient(colorsSpace: colorSpace, colors: colorsArray, locations: &locations)!
         
         context.drawLinearGradient(gradient, start: CGPoint(), end: CGPoint(x: 0.0, y: bounds.size.height), options: CGGradientDrawingOptions())
-        
         context.setBlendMode(.normal)
+        
+        
+        
+//        let pathRect = bounds.insetBy(dx: 1, dy: 1)
+//        let path = UIBezierPath(roundedRect: pathRect, cornerRadius: 8)
+//        path.lineWidth = 3
+//        (colorsArray[0] as! UIColor).setFill()
+//        UIColor.blue.setStroke()
+//        path.fill()
+//        path.stroke()
+        
         
         if let parameters = parameters as? AvatarNodeParameters {
             if case .deletedIcon = parameters.icon {
@@ -522,6 +575,7 @@ public final class AvatarNode: ASDisplayNode {
                 if let deletedIcon = deletedIcon {
                     context.draw(deletedIcon.cgImage!, in: CGRect(origin: CGPoint(x: floor((bounds.size.width - deletedIcon.size.width) / 2.0), y: floor((bounds.size.height - deletedIcon.size.height) / 2.0)), size: deletedIcon.size))
                 }
+                
             } else if case .phoneIcon = parameters.icon {
                 let factor: CGFloat = 1.0
                 context.translateBy(x: bounds.size.width / 2.0, y: bounds.size.height / 2.0)
@@ -539,6 +593,15 @@ public final class AvatarNode: ASDisplayNode {
                 
                 if let savedMessagesIcon = savedMessagesIcon {
                     context.draw(savedMessagesIcon.cgImage!, in: CGRect(origin: CGPoint(x: floor((bounds.size.width - savedMessagesIcon.size.width) / 2.0), y: floor((bounds.size.height - savedMessagesIcon.size.height) / 2.0)), size: savedMessagesIcon.size))
+                }
+            }else if case .infoMoreIcon = parameters.icon {
+                let factor = bounds.size.width / 60.0
+                context.translateBy(x: bounds.size.width / 2.0, y: bounds.size.height / 2.0)
+                context.scaleBy(x: factor, y: -factor)
+                context.translateBy(x: -bounds.size.width / 2.0, y: -bounds.size.height / 2.0)
+                
+                if let infoMoreIcon = infoMoreIcon {
+                    context.draw(infoMoreIcon.cgImage!, in: CGRect(origin: CGPoint(x: floor((bounds.size.width - infoMoreIcon.size.width) / 2.0), y: floor((bounds.size.height - infoMoreIcon.size.height) / 2.0)), size: infoMoreIcon.size))
                 }
             } else if case .repliesIcon = parameters.icon {
                 let factor = bounds.size.width / 60.0
@@ -564,10 +627,13 @@ public final class AvatarNode: ASDisplayNode {
                 context.translateBy(x: bounds.size.width / 2.0, y: bounds.size.height / 2.0)
                 context.scaleBy(x: factor, y: -factor)
                 context.translateBy(x: -bounds.size.width / 2.0, y: -bounds.size.height / 2.0)
-                
+                #warning("更换 打包的图标")
                 if let archivedChatsIcon = generateTintedImage(image: archivedChatsIcon, color: iconColor) {
-                    context.draw(archivedChatsIcon.cgImage!, in: CGRect(origin: CGPoint(x: floor((bounds.size.width - archivedChatsIcon.size.width) / 2.0), y: floor((bounds.size.height - archivedChatsIcon.size.height) / 2.0)), size: archivedChatsIcon.size))
+                    context.draw(archivedChatsIcon.cgImage!, in: CGRect(origin: CGPoint(), size: bounds.size))
                 }
+//                if let archivedChatsIcon = generateTintedImage(image: archivedChatsIcon, color: iconColor) {
+//                    context.draw(archivedChatsIcon.cgImage!, in: CGRect(origin: CGPoint(x: floor((bounds.size.width - archivedChatsIcon.size.width) / 2.0), y: floor((bounds.size.height - archivedChatsIcon.size.height) / 2.0)), size: archivedChatsIcon.size))
+//                }
             } else {
                 var letters = parameters.letters
                 if letters.count == 2 && letters[0].isSingleEmoji && letters[1].isSingleEmoji {

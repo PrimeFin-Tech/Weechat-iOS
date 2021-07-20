@@ -101,6 +101,47 @@ public enum DownloadAndApplyLocalizationError {
 }
 
 public func downloadAndApplyLocalization(accountManager: AccountManager, postbox: Postbox, network: Network, languageCode: String) -> Signal<Void, DownloadAndApplyLocalizationError> {
+    
+//    let newLocalizationInfo = LocalizationInfo(languageCode: "en", baseLanguageCode: nil, customPluralizationCode: "en", title: "English", localizedTitle: "en", isOfficial: false, totalStringCount: 4582, translatedStringCount: 4582, platformUrl: "https://translations.telegram.org/en/")
+//    return accountManager.transaction { transaction -> Signal<Void, DownloadAndApplyLocalizationError> in
+//        transaction.updateSharedData(SharedDataKeys.localizationSettings, { _ in
+//            
+//            
+//            return LocalizationSettings(primaryComponent: LocalizationComponent(languageCode: preview.languageCode, localizedName: preview.localizedTitle, localization: primaryLocalization, customPluralizationCode: preview.customPluralizationCode), secondaryComponent: secondaryComponent)
+//        })
+//        
+//        return postbox.transaction { transaction -> Signal<Void, DownloadAndApplyLocalizationError> in
+//            updateLocalizationListStateInteractively(transaction: transaction, { state in
+//                var state = state
+//                for i in 0 ..< state.availableSavedLocalizations.count {
+//                    if state.availableSavedLocalizations[i].languageCode == preview.languageCode {
+//                        state.availableSavedLocalizations.remove(at: i)
+//                        break
+//                    }
+//                }
+//                state.availableSavedLocalizations.insert(preview, at: 0)
+//                return state
+//            })
+//            
+//            network.context.updateApiEnvironment { current in
+//                return current?.withUpdatedLangPackCode(preview.languageCode)
+//            }
+//            
+//            return network.request(Api.functions.help.test())
+//            |> `catch` { _ -> Signal<Api.Bool, NoError> in
+//                return .complete()
+//            }
+//            |> mapToSignal { _ -> Signal<Void, NoError> in
+//                return .complete()
+//            }
+//            |> castError(DownloadAndApplyLocalizationError.self)
+//        }
+//        |> castError(DownloadAndApplyLocalizationError.self)
+//        |> switchToLatest
+//    }
+//    
+    
+    
     return requestLocalizationPreview(network: network, identifier: languageCode)
     |> mapError { _ -> DownloadAndApplyLocalizationError in
         return .generic
@@ -125,6 +166,8 @@ public func downloadAndApplyLocalization(accountManager: AccountManager, postbox
             }
             return accountManager.transaction { transaction -> Signal<Void, DownloadAndApplyLocalizationError> in
                 transaction.updateSharedData(SharedDataKeys.localizationSettings, { _ in
+                    
+                    
                     return LocalizationSettings(primaryComponent: LocalizationComponent(languageCode: preview.languageCode, localizedName: preview.localizedTitle, localization: primaryLocalization, customPluralizationCode: preview.customPluralizationCode), secondaryComponent: secondaryComponent)
                 })
                 

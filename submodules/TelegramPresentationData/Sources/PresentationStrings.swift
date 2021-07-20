@@ -3,7 +3,13 @@ import AppBundle
 import StringPluralization
 
 private let fallbackDict: [String: String] = {
-    guard let mainPath = getAppBundle().path(forResource: "en", ofType: "lproj"), let bundle = Bundle(path: mainPath) else {
+    //zh-Hans  // en
+    var resource: String = "en"
+    let coden = UserDefaults.standard.string(forKey: "LanguageCodeNN")
+    if coden == "zh-Hans"{
+        resource = "zh-Hans"
+    }
+    guard let mainPath = getAppBundle().path(forResource: resource, ofType: "lproj"), let bundle = Bundle(path: mainPath) else {
         return [:]
     }
     guard let path = bundle.path(forResource: "Localizable", ofType: "strings") else {

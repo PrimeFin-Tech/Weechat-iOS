@@ -55,6 +55,8 @@ final class AuthorizationSequenceCodeEntryController: ViewController {
         self.attemptNavigation = { _ in
             return false
         }
+        self.navigationBar?.customBackButtonText = "    "
+        self.navigationBar?.backButtonNode
         self.navigationBar?.backPressed = { [weak self] in
             self?.present(standardTextAlertController(theme: AlertControllerTheme(presentationData: presentationData), title: nil, text: presentationData.strings.Login_CancelPhoneVerification, actions: [TextAlertAction(type: .genericAction, title: presentationData.strings.Login_CancelPhoneVerificationContinue, action: {
             }), TextAlertAction(type: .defaultAction, title: presentationData.strings.Login_CancelPhoneVerificationStop, action: {

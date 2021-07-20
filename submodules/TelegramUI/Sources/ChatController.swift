@@ -2766,9 +2766,13 @@ public final class ChatControllerImpl: TelegramBaseController, ChatController, G
         }
         chatInfoButtonItem.target = self
         chatInfoButtonItem.action = #selector(self.rightNavigationButtonAction)
+        //打开信息
         self.chatInfoNavigationButton = ChatNavigationButton(action: .openChatInfo(expandAvatar: true), buttonItem: chatInfoButtonItem)
         
+        
+        //navigationbar顶部 view
         self.navigationItem.titleView = self.chatTitleView
+        #warning("互聊页面 点击顶部头 弹出对方 信息页面")
         self.chatTitleView?.pressed = { [weak self] in
             self?.navigationButtonAction(.openChatInfo(expandAvatar: false))
         }
@@ -2916,9 +2920,15 @@ public final class ChatControllerImpl: TelegramBaseController, ChatController, G
                                     } else if peer.isDeleted {
                                         imageOverride = .deletedIcon
                                     } else {
-                                        imageOverride = nil
+//                                        imageOverride = nil
+                                        imageOverride = .infoMoreIcon
                                     }
+                                  
                                     (strongSelf.chatInfoNavigationButton?.buttonItem.customDisplayNode as? ChatAvatarNavigationNode)?.avatarNode.setPeer(context: strongSelf.context, theme: strongSelf.presentationData.theme, peer: peer, overrideImage: imageOverride)
+                                    
+                                
+                                    
+                                    
                                     (strongSelf.chatInfoNavigationButton?.buttonItem.customDisplayNode as? ChatAvatarNavigationNode)?.contextActionIsEnabled =  peer.restrictionText(platform: "ios", contentSettings: strongSelf.context.currentContentSettings.with { $0 }) == nil
                                     strongSelf.chatInfoNavigationButton?.buttonItem.accessibilityLabel = presentationInterfaceState.strings.Conversation_ContextMenuOpenProfile
                                 }
@@ -7661,9 +7671,16 @@ public final class ChatControllerImpl: TelegramBaseController, ChatController, G
                 if case .replyThread = self.chatLocation {
                     animated = false
                 }
-                self.navigationItem.setRightBarButton(button.buttonItem, animated: animated)
+                self.navigationItem.setRightBarButton(button.buttonItem, animated: false)
                 self.rightNavigationButton = button
+                
+//                #warning("替换对话框右上角图标 后期需要切图替换")
+//                let rightBt = UIBarButtonItem(image: UIImage(named: "right_more"), style: UIBarButtonItem.Style.plain, target: self, action: #selector(self.rightBtnPress))
+//                self.navigationItem.setRightBarButton(rightBt, animated: true)
             }
+           
+            
+            
         } else if let _ = self.rightNavigationButton {
             self.navigationItem.setRightBarButton(nil, animated: transition.isAnimated)
             self.rightNavigationButton = nil
@@ -7714,6 +7731,11 @@ public final class ChatControllerImpl: TelegramBaseController, ChatController, G
         }
         
         self.presentationInterfaceStatePromise.set(self.presentationInterfaceState)
+    }
+    
+    @objc private func rightBtnPress(){
+       
+        self.navigationButtonAction(.openChatInfo(expandAvatar: true))
     }
     
     private func updateItemNodesSelectionStates(animated: Bool) {

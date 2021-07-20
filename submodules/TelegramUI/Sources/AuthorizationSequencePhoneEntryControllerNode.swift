@@ -18,6 +18,7 @@ private final class PhoneAndCountryNode: ASDisplayNode {
     let countryButton: ASButtonNode
     let phoneBackground: ASImageNode
     let phoneInputNode: PhoneInputNode
+    let shoujihao: UILabel
     
     var selectCountryCode: (() -> Void)?
     var checkPhone: (() -> Void)?
@@ -86,8 +87,16 @@ private final class PhoneAndCountryNode: ASDisplayNode {
         
         self.phoneInputNode = PhoneInputNode()
         
+        let shoujihaoL: UILabel = UILabel()
+        shoujihaoL.text = self.strings.UserInfo_GenericPhoneLabel
+        shoujihaoL.textColor = UIColor.black
+        shoujihaoL.font = Font.bold(18)
+        self.shoujihao = shoujihaoL
+        
+     
         super.init()
         
+        self.view.addSubview(shoujihaoL)
         self.addSubnode(self.phoneBackground)
         self.addSubnode(self.countryButton)
         self.addSubnode(self.phoneInputNode)
@@ -188,6 +197,8 @@ private final class PhoneAndCountryNode: ASDisplayNode {
         let size = self.bounds.size
         
         self.countryButton.frame = CGRect(origin: CGPoint(), size: CGSize(width: size.width, height: 67.0))
+        self.shoujihao.frame = CGRect(x: 220, y: self.countryButton.frame.origin.y, width: 60, height: 57)
+        
         self.phoneBackground.frame = CGRect(origin: CGPoint(x: 0.0, y: size.height - 57.0), size: CGSize(width: size.width, height: 57.0))
         
         let countryCodeFrame = CGRect(origin: CGPoint(x: 18.0, y: size.height - 57.0), size: CGSize(width: 71.0, height: 57.0))
@@ -206,6 +217,8 @@ private final class PhoneAndCountryNode: ASDisplayNode {
 private final class ContactSyncNode: ASDisplayNode {
     private let titleNode: ImmediateTextNode
     let switchNode: SwitchNode
+    
+    
     
     init(theme: PresentationTheme, strings: PresentationStrings) {
         self.titleNode = ImmediateTextNode()
@@ -250,6 +263,10 @@ final class AuthorizationSequencePhoneEntryControllerNode: ASDisplayNode {
     private var qrNode: ASImageNode?
     private let exportTokenDisposable = MetaDisposable()
     private let tokenEventsDisposable = MetaDisposable()
+    
+    
+    let loginButton: UIButton
+    
     var accountUpdated: ((UnauthorizedAccount) -> Void)?
     
     private let debugAction: () -> Void
@@ -278,7 +295,7 @@ final class AuthorizationSequencePhoneEntryControllerNode: ASDisplayNode {
     
     var selectCountryCode: (() -> Void)?
     var checkPhone: (() -> Void)?
-    
+    var loginButtonPress: (() -> Void)?
     var inProgress: Bool = false {
         didSet {
             self.phoneAndCountryNode.phoneInputNode.enableEditing = !self.inProgress
@@ -296,22 +313,38 @@ final class AuthorizationSequencePhoneEntryControllerNode: ASDisplayNode {
         self.debugAction = debugAction
         self.hasOtherAccounts = hasOtherAccounts
         
+        //手机号登录
         self.titleNode = ASTextNode()
         self.titleNode.isUserInteractionEnabled = true
         self.titleNode.displaysAsynchronously = false
+        self.titleNode.textAlignment = NSTextAlignment.left
         self.titleNode.attributedText = NSAttributedString(string: strings.Login_PhoneTitle, font: Font.light(30.0), textColor: theme.list.itemPrimaryTextColor)
         
+        //请确认您的国际号码，并输入您的电话号码
         self.noticeNode = ASTextNode()
         self.noticeNode.maximumNumberOfLines = 0
         self.noticeNode.isUserInteractionEnabled = true
+        self.noticeNode.textAlignment = NSTextAlignment.left
         self.noticeNode.displaysAsynchronously = false
-        self.noticeNode.attributedText = NSAttributedString(string: strings.Login_PhoneAndCountryHelp, font: Font.regular(16.0), textColor: theme.list.itemPrimaryTextColor, paragraphAlignment: .center)
+        self.noticeNode.attributedText = NSAttributedString(string: strings.Login_PhoneAndCountryHelp, font: Font.regular(16.0), textColor: theme.list.itemSecondaryTextColor, paragraphAlignment: .left)
         
         self.contactSyncNode = ContactSyncNode(theme: theme, strings: strings)
         
         self.phoneAndCountryNode = PhoneAndCountryNode(strings: strings, theme: theme)
         
+        let loginButton: UIButton = UIButton()
+        loginButton.backgroundColor = UIColor(red: 244/255, green:  61/255, blue:  47/255, alpha: 1)
+        
+        loginButton.setTitle(self.strings.Tour_StartButton, for: UIControl.State.normal)
+        loginButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 18)
+        loginButton.setTitleColor(UIColor.white, for: UIControl.State.normal)
+        loginButton.layer.cornerRadius = 8.0
+        self.loginButton = loginButton
+        
         super.init()
+        
+        loginButton.addTarget(self, action: #selector(self.loginPressed), for: UIControl.Event.touchUpInside)
+        
         
         self.setViewBlock({
             return UITracingLayerView()
@@ -324,6 +357,8 @@ final class AuthorizationSequencePhoneEntryControllerNode: ASDisplayNode {
         self.addSubnode(self.phoneAndCountryNode)
         self.addSubnode(self.contactSyncNode)
         self.contactSyncNode.isHidden = true
+        
+        self.view.addSubview(self.loginButton)
         
         self.phoneAndCountryNode.selectCountryCode = { [weak self] in
             self?.selectCountryCode?()
@@ -351,14 +386,49 @@ final class AuthorizationSequencePhoneEntryControllerNode: ASDisplayNode {
         self.noticeNode.view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.debugQrTap(_:))))
         #endif
     }
-    
+    @objc func loginPressed() {
+        self.loginButtonPress?()
+    }
     func updateCountryCode() {
         self.phoneAndCountryNode.phoneInputNode.codeAndNumber = self.codeAndNumber
     }
-    
+//    override public func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent) {
+//
+//        self.phoneAndCountryNode.phoneInputNode.numberField.textField.resignFirstResponder()
+//
+//        super.touchesEnded(touches, with: event)
+//
+//    }
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.resignInput()
+    }
     func containerLayoutUpdated(_ layout: ContainerViewLayout, navigationBarHeight: CGFloat, transition: ContainedViewLayoutTransition) {
         var insets = layout.insets(options: [])
         insets.top = navigationBarHeight
+        if let inputHeight = layout.inputHeight, !inputHeight.isZero {
+            insets.bottom += max(inputHeight, layout.standardInputHeight)
+        }
+        
+        
+        if max(layout.size.width, layout.size.height) > 1023.0 {
+            self.titleNode.attributedText = NSAttributedString(string: strings.Login_PhoneTitle, font: Font.light(40.0), textColor: self.theme.list.itemPrimaryTextColor)
+        } else {
+            var titleAttri = NSMutableAttributedString(string: strings.Login_PhoneTitle, font: Font.light(30.0), textColor: self.theme.list.itemPrimaryTextColor)
+            self.titleNode.attributedText = titleAttri
+        }
+        
+        let titleSize = self.titleNode.measure(CGSize(width: layout.size.width, height: CGFloat.greatestFiniteMagnitude))
+//        let noticeSize = self.noticeNode.measure(CGSize(width: min(200.0, layout.size.width - 40.0), height: CGFloat.greatestFiniteMagnitude))
+        
+        let noticeSize = CGSize(width: layout.size.width-40, height: 50)
+        
+        self.titleNode.frame = CGRect(x: 20, y: insets.top+50, width: titleSize.width, height: titleSize.height)
+        self.noticeNode.frame = CGRect(x: 20, y: insets.top+50+titleSize.height+20, width: layout.size.width-40, height: noticeSize.height)
+        
+        self.phoneAndCountryNode.frame = CGRect(x: 0, y: self.noticeNode.frame.origin.y + noticeSize.height + 30, width: layout.size.width, height: 115)
+        
+        self.loginButton.frame = CGRect(x: 40, y: layout.size.height*0.6, width: layout.size.width-80, height: 48)
+        /*
         
         if let inputHeight = layout.inputHeight, !inputHeight.isZero {
             insets.bottom += max(inputHeight, layout.standardInputHeight)
@@ -376,7 +446,7 @@ final class AuthorizationSequencePhoneEntryControllerNode: ASDisplayNode {
         var items: [AuthorizationLayoutItem] = [
             AuthorizationLayoutItem(node: self.titleNode, size: titleSize, spacingBefore: AuthorizationLayoutItemSpacing(weight: 0.0, maxValue: 0.0), spacingAfter: AuthorizationLayoutItemSpacing(weight: 0.0, maxValue: 0.0)),
             AuthorizationLayoutItem(node: self.noticeNode, size: noticeSize, spacingBefore: AuthorizationLayoutItemSpacing(weight: 18.0, maxValue: 18.0), spacingAfter: AuthorizationLayoutItemSpacing(weight: 0.0, maxValue: 0.0)),
-            AuthorizationLayoutItem(node: self.phoneAndCountryNode, size: CGSize(width: layout.size.width, height: 115.0), spacingBefore: AuthorizationLayoutItemSpacing(weight: 44.0, maxValue: 44.0), spacingAfter: AuthorizationLayoutItemSpacing(weight: 0.0, maxValue: 0.0))
+            AuthorizationLayoutItem(node: self.phoneAndCountryNode, size: CGSize(width: layout.size.width, height: 115.0), spacingBefore: AuthorizationLayoutItemSpacing(weight: 44.0, maxValue: 44.0), spacingAfter: AuthorizationLayoutItemSpacing(weight: layout.size.width*1.1, maxValue: layout.size.width*1.1))
         ]
         let contactSyncSize = self.contactSyncNode.updateLayout(width: layout.size.width)
         if self.hasOtherAccounts {
@@ -387,10 +457,18 @@ final class AuthorizationSequencePhoneEntryControllerNode: ASDisplayNode {
         }
         
         let _ = layoutAuthorizationItems(bounds: CGRect(origin: CGPoint(x: 0.0, y: insets.top), size: CGSize(width: layout.size.width, height: layout.size.height - insets.top - insets.bottom - 10.0)), items: items, transition: transition, failIfDoesNotFit: false)
+ 
+ */
     }
     
     func activateInput() {
         self.phoneAndCountryNode.phoneInputNode.numberField.textField.becomeFirstResponder()
+        
+        
+    }
+    func resignInput() {
+        self.phoneAndCountryNode.phoneInputNode.numberField.textField.resignFirstResponder()
+        
     }
     
     func animateError() {

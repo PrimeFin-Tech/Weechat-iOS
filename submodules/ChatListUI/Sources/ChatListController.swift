@@ -199,7 +199,7 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
         
         if !previewing {
             if self.groupId == .root && self.filter == nil {
-                self.tabBarItem.title = self.presentationData.strings.DialogList_Title
+                self.tabBarItem.title = self.presentationData.strings.DialogList_TabTitle
                 
                 let icon: UIImage?
                 if useSpecialTabBarIcons() {
@@ -208,14 +208,21 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
                     icon = UIImage(bundleImageName: "Chat List/Tabs/IconChats")
                 }
                 
+                let icon_d: UIImage? = UIImage(bundleImageName: "Chat List/Tabs/IconChats_d")?.withRenderingMode(UIImage.RenderingMode.alwaysOriginal)
+         
                 self.tabBarItem.image = icon
-                self.tabBarItem.selectedImage = icon
+                self.tabBarItem.selectedImage = icon_d
                 
                 let leftBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.Common_Edit, style: .plain, target: self, action: #selector(self.editPressed))
+                #warning("修改barButton文字颜色")       
+                let tintC = UIColor(hexString: "0080C4")
+                leftBarButtonItem.tintColor = tintC
                 leftBarButtonItem.accessibilityLabel = self.presentationData.strings.Common_Edit
                 self.navigationItem.leftBarButtonItem = leftBarButtonItem
                 
-                let rightBarButtonItem = UIBarButtonItem(image: PresentationResourcesRootController.navigationComposeIcon(self.presentationData.theme), style: .plain, target: self, action: #selector(self.composePressed))
+                //rightBarButtonItem
+                let rbIcon = UIImage(bundleImageName: "Chat List/AddIcon")
+                let rightBarButtonItem = UIBarButtonItem(image: rbIcon, style: .plain, target: self, action: #selector(self.composePressed))
                 rightBarButtonItem.accessibilityLabel = self.presentationData.strings.VoiceOver_Navigation_Compose
                 self.navigationItem.rightBarButtonItem = rightBarButtonItem
                 let backBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.DialogList_Title, style: .plain, target: nil, action: nil)
@@ -343,6 +350,7 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
                             if isReorderingTabs {
                                 strongSelf.navigationItem.setRightBarButton(nil, animated: true)
                             } else {
+                                
                                 let rightBarButtonItem = UIBarButtonItem(image: PresentationResourcesRootController.navigationComposeIcon(strongSelf.presentationData.theme), style: .plain, target: strongSelf, action: #selector(strongSelf.composePressed))
                                 rightBarButtonItem.accessibilityLabel = strongSelf.presentationData.strings.VoiceOver_Navigation_Compose
                                 if strongSelf.navigationItem.rightBarButtonItem?.accessibilityLabel != rightBarButtonItem.accessibilityLabel {
@@ -514,7 +522,7 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
     
     private func updateThemeAndStrings() {
         if case .root = self.groupId {
-            self.tabBarItem.title = self.presentationData.strings.DialogList_Title
+            self.tabBarItem.title = self.presentationData.strings.DialogList_TabTitle
             let backBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.DialogList_Title, style: .plain, target: nil, action: nil)
             backBarButtonItem.accessibilityLabel = self.presentationData.strings.Common_Back
             self.navigationItem.backBarButtonItem = backBarButtonItem
@@ -564,6 +572,7 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
         
         self.chatListDisplayNode.navigationBar = self.navigationBar
         
+        //取消搜索
         self.chatListDisplayNode.requestDeactivateSearch = { [weak self] in
             self?.deactivateSearch(animated: true)
         }
@@ -605,6 +614,7 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
             strongSelf.deletePeerChat(peerId: peerId, joined: joined)
         }
         
+        //点击聊天人
         self.chatListDisplayNode.containerNode.peerSelected = { [weak self] peer, animated, activateInput, promoInfo in
             if let strongSelf = self {
                 if let navigationController = strongSelf.navigationController as? NavigationController {

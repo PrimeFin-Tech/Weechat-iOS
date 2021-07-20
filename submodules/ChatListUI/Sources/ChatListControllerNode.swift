@@ -277,6 +277,7 @@ private final class ChatListContainerItemNode: ASDisplayNode {
         
         self.listNode = ChatListNode(context: context, groupId: groupId, chatListFilter: filter, previewing: previewing, fillPreloadItems: controlsHistoryPreload, mode: .chatList, theme: presentationData.theme, fontSize: presentationData.listsFontSize, strings: presentationData.strings, dateTimeFormat: presentationData.dateTimeFormat, nameSortOrder: presentationData.nameSortOrder, nameDisplayOrder: presentationData.nameDisplayOrder, disableAnimations: presentationData.disableAnimations)
         
+        
         super.init()
         
         self.addSubnode(self.listNode)
@@ -1031,6 +1032,7 @@ final class ChatListControllerNode: ASDisplayNode {
             filterEmptyAction?(filter)
         })
         
+        //长按弹框
         self.inlineTabContainerNode = ChatListFilterTabInlineContainerNode()
         
         self.controller = controller

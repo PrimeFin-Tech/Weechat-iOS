@@ -97,6 +97,7 @@ public final class CallListController: TelegramBaseController {
         self.mode = mode
         self.presentationData = context.sharedContext.currentPresentationData.with { $0 }
         
+        #warning("创建segment 控件")
         self.segmentedTitleView = ItemListControllerSegmentedTitleView(theme: self.presentationData.theme, segments: [self.presentationData.strings.Calls_All, self.presentationData.strings.Calls_Missed], selectedIndex: 0)
         
         super.init(context: context, navigationBarPresentationData: NavigationBarPresentationData(presentationData: self.presentationData), mediaAccessoryPanelVisibility: .none, locationBroadcastPanelSource: .none, groupCallPanelSource: .none)
@@ -112,9 +113,11 @@ public final class CallListController: TelegramBaseController {
             } else {
                 icon = UIImage(bundleImageName: "Chat List/Tabs/IconCalls")
             }
+            let icon_d: UIImage? = UIImage(bundleImageName: "Chat List/Tabs/IconCalls_d")?.withRenderingMode(UIImage.RenderingMode.alwaysOriginal)
+                
             self.tabBarItem.title = self.presentationData.strings.Calls_TabTitle
             self.tabBarItem.image = icon
-            self.tabBarItem.selectedImage = icon
+            self.tabBarItem.selectedImage = icon_d
         }
         
         self.segmentedTitleView.indexUpdated = { [weak self] index in
@@ -359,7 +362,7 @@ public final class CallListController: TelegramBaseController {
         let contextController = ContextController(account: self.context.account, presentationData: self.presentationData, source: .extracted(ExtractedContentSourceImpl(controller: self, sourceNode: buttonNode.contentNode, keepInPlace: false, blurBackground: false)), items: .single(items), reactionItems: [], gesture: nil)
         self.presentInGlobalOverlay(contextController)
     }
-    
+    #warning("创建新的 通话")
     private func beginCallImpl() {
         let controller = self.context.sharedContext.makeContactSelectionController(ContactSelectionControllerParams(context: self.context, title: { $0.Calls_NewCall }, displayCallIcons: true))
         controller.navigationPresentation = .modal

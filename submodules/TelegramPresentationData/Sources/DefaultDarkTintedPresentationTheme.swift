@@ -552,8 +552,8 @@ public func makeDefaultDarkTintedPresentationTheme(extendingThemeReference: Pres
     let switchColors = PresentationThemeSwitch(
         frameColor: mainSecondaryTextColor.withAlphaComponent(0.5),
         handleColor: UIColor(rgb: 0x121212),
-        contentColor: accentColor,
-        positiveColor: UIColor(rgb: 0x08a723),
+        contentColor: UIColor(rgb: 0xF43D2F),//accentColor -> F43D2F
+        positiveColor: UIColor(rgb: 0xF43D2F),// 绿色改红色 0x08a723 ->#F43D2F
         negativeColor: UIColor(rgb: 0xff6767)
     )
 
@@ -582,7 +582,7 @@ public func makeDefaultDarkTintedPresentationTheme(extendingThemeReference: Pres
             neutral1: PresentationThemeFillForeground(fillColor: accentColor, foregroundColor: .white),
             neutral2: PresentationThemeFillForeground(fillColor: UIColor(rgb: 0xcd7800), foregroundColor: .white),
             destructive: PresentationThemeFillForeground(fillColor: UIColor(rgb: 0xc70c0c), foregroundColor: .white),
-            constructive: PresentationThemeFillForeground(fillColor: UIColor(rgb: 0x08a723), foregroundColor: .white),
+            constructive: PresentationThemeFillForeground(fillColor: UIColor(rgb: 0xF43D2F), foregroundColor: .white),//0x08a723->0xF43D2F
             accent: PresentationThemeFillForeground(fillColor: accentColor, foregroundColor: .white),
             warning: PresentationThemeFillForeground(fillColor: UIColor(rgb: 0xcd7800), foregroundColor: .white),
             inactive: PresentationThemeFillForeground(fillColor: accentColor.withMultiplied(hue: 1.029, saturation: 0.609, brightness: 0.3), foregroundColor: .white)

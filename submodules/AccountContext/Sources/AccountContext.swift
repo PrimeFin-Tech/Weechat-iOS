@@ -575,6 +575,7 @@ public protocol SharedAccountContext: class {
     
     var presentGlobalController: (ViewController, Any?) -> Void { get }
     
+    
     func makeTempAccountContext(account: Account) -> AccountContext
     
     func updateNotificationTokensRegistration()
@@ -629,6 +630,8 @@ public protocol SharedAccountContext: class {
     
     func switchToAccount(id: AccountRecordId, fromSettingsController settingsController: ViewController?, withChatListController chatListController: ViewController?)
     func beginNewAuth(testingEnvironment: Bool)
+    
+    func updateDDD()
 }
 
 #if ENABLE_WALLET

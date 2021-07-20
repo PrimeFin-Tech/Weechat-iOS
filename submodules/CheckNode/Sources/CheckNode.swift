@@ -16,7 +16,9 @@ public struct CheckNodeTheme {
     public let borderWidth: CGFloat?
     
     public init(backgroundColor: UIColor, strokeColor: UIColor, borderColor: UIColor, overlayBorder: Bool, hasInset: Bool, hasShadow: Bool, filledBorder: Bool = false, borderWidth: CGFloat? = nil) {
-        self.backgroundColor = backgroundColor
+//        self.backgroundColor = backgroundColor
+        //二次修改
+        self.backgroundColor = UIColor.red
         self.strokeColor = strokeColor
         self.borderColor = borderColor
         self.overlayBorder = overlayBorder

@@ -380,8 +380,11 @@ public class ContactsPeerItemNode: ItemListRevealOptionsItemNode {
         
         self.offsetContainerNode = ASDisplayNode()
         
+        //avatarNode 通讯录头像
         self.avatarNode = AvatarNode(font: avatarFont)
         self.avatarNode.isLayerBacked = !smartInvertColorsEnabled()
+        
+        
         
         self.titleNode = TextNode()
         self.statusNode = TextNode()
@@ -581,9 +584,9 @@ public class ContactsPeerItemNode: ItemListRevealOptionsItemNode {
                         case .add:
                             image = PresentationResourcesItemList.plusIconImage(theme)
                         case .voiceCall:
-                            image = PresentationResourcesItemList.voiceCallIcon(theme)
+                            image = PresentationResourcesItemList.voiceCallIcon_B(theme)
                         case .videoCall:
-                            image = PresentationResourcesItemList.videoCallIcon(theme)
+                            image = PresentationResourcesItemList.videoCallIcon_B(theme)
                     }
                     self.image = image
                     self.action = action

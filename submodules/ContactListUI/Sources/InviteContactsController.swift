@@ -44,7 +44,7 @@ public class InviteContactsController: ViewController, MFMessageComposeViewContr
         
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
         
-        self.title = self.presentationData.strings.Contacts_InviteFriends
+        self.title = "邀请朋友"
         
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.Common_Back, style: .plain, target: nil, action: nil)
         
@@ -90,7 +90,7 @@ public class InviteContactsController: ViewController, MFMessageComposeViewContr
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
         self.navigationBar?.updatePresentationData(NavigationBarPresentationData(presentationData: self.presentationData))
         self.searchContentNode?.updateThemeAndPlaceholder(theme: self.presentationData.theme, placeholder: self.presentationData.strings.Common_Search)
-        self.title = self.presentationData.strings.Contacts_InviteFriends
+        self.title = "邀请朋友"
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.Common_Back, style: .plain, target: nil, action: nil)
         self.updateRightBarButtonItem()
     }

@@ -680,9 +680,12 @@ public enum SearchBarStyle {
     var cornerDiameter: CGFloat {
         switch self {
             case .modern:
-                return 21.0
+                //二次修改
+//                return 21.0
+                return 36.0
             case .legacy:
-                return 14.0
+//                return 14.0
+                return 28.0
         }
     }
     
@@ -823,6 +826,7 @@ public class SearchBarNode: ASDisplayNode, UITextFieldDelegate {
         self.textBackgroundNode.isLayerBacked = false
         self.textBackgroundNode.displaysAsynchronously = false
         self.textBackgroundNode.cornerRadius = self.fieldStyle.cornerDiameter / 2.0
+        
         
         self.iconNode = ASImageNode()
         self.iconNode.isLayerBacked = true

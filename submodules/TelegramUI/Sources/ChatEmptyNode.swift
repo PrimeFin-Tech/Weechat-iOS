@@ -762,7 +762,7 @@ private final class ChatEmptyNodeCloudChatContent: ASDisplayNode, ChatEmptyNodeC
         let titleFrame = CGRect(origin: CGPoint(x: contentRect.minX + floor((contentRect.width - titleSize.width) / 2.0), y: contentRect.minY), size: titleSize)
         transition.updateFrame(node: self.titleNode, frame: titleFrame)
         
-        var lineOffset = titleFrame.maxY + titleSpacing
+        var lineOffset = titleFrame.maxY + titleSpacing+10
         for (textSize, textNode) in lineNodes {
             let isRTL = textNode.cachedLayout?.hasRTL ?? false
             transition.updateFrame(node: textNode, frame: CGRect(origin: CGPoint(x: isRTL ? contentRect.maxX - textSize.width : contentRect.minX, y: lineOffset), size: textSize))

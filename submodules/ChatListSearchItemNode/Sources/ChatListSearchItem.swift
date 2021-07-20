@@ -135,6 +135,7 @@ public class ChatListSearchItemNode: ListViewItemNode {
                     searchBarApply()
                     
                     strongSelf.searchBarNode.bounds = CGRect(origin: CGPoint(), size: CGSize(width: baseWidth - 20.0, height: 36.0))
+                   
                     
                     if !item.isEnabled {
                         if strongSelf.disabledOverlay == nil {

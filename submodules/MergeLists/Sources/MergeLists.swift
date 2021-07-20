@@ -199,7 +199,7 @@ public func mergeListsStableWithUpdates<T>(leftList: [T], rightList: [T], isLess
     existingStableIds.removeAll()
     for item in rightList {
         if let other = existingStableIds[getId(item)] {
-            print("\(other) has the same stableId as \(item): \(getId(item))")
+            print("\(other) has the same stableId as \(item): 快看看\(getId(item))")
             assertionFailure()
         } else {
             existingStableIds[getId(item)] = item

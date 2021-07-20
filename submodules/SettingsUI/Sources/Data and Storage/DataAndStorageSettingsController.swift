@@ -514,19 +514,20 @@ private func dataAndStorageControllerEntries(state: DataAndStorageControllerStat
     entries.append(.downloadInBackground(presentationData.theme, presentationData.strings.ChatSettings_DownloadInBackground, data.automaticMediaDownloadSettings.downloadInBackground))
     entries.append(.downloadInBackgroundInfo(presentationData.theme, presentationData.strings.ChatSettings_DownloadInBackgroundInfo))
     
-    let proxyValue: String
-    if let proxySettings = data.proxySettings, let activeServer = proxySettings.activeServer, proxySettings.enabled {
-        switch activeServer.connection {
-            case .socks5:
-                proxyValue = presentationData.strings.ChatSettings_ConnectionType_UseSocks5
-            case .mtp:
-                proxyValue = presentationData.strings.SocksProxySetup_ProxyTelegram
-        }
-    } else {
-        proxyValue = presentationData.strings.GroupInfo_SharedMediaNone
-    }
-    entries.append(.connectionHeader(presentationData.theme, presentationData.strings.ChatSettings_ConnectionType_Title.uppercased()))
-    entries.append(.connectionProxy(presentationData.theme, presentationData.strings.SocksProxySetup_Title, proxyValue))
+    //屏蔽添加代理 入口
+//    let proxyValue: String
+//    if let proxySettings = data.proxySettings, let activeServer = proxySettings.activeServer, proxySettings.enabled {
+//        switch activeServer.connection {
+//            case .socks5:
+//                proxyValue = presentationData.strings.ChatSettings_ConnectionType_UseSocks5
+//            case .mtp:
+//                proxyValue = presentationData.strings.SocksProxySetup_ProxyTelegram
+//        }
+//    } else {
+//        proxyValue = presentationData.strings.GroupInfo_SharedMediaNone
+//    }
+//    entries.append(.connectionHeader(presentationData.theme, presentationData.strings.ChatSettings_ConnectionType_Title.uppercased()))
+//    entries.append(.connectionProxy(presentationData.theme, presentationData.strings.SocksProxySetup_Title, proxyValue))
     
     #if DEBUG
     if let contentSettingsConfiguration = contentSettingsConfiguration, contentSettingsConfiguration.canAdjustSensitiveContent {

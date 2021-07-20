@@ -59,7 +59,9 @@ public final class SolidRoundedButtonNode: ASDisplayNode {
         self.title = title
         
         self.buttonBackgroundNode = ASDisplayNode()
-        self.buttonBackgroundNode.backgroundColor = theme.backgroundColor
+        //二次修改
+//        self.buttonBackgroundNode.backgroundColor = theme.backgroundColor
+        self.buttonBackgroundNode.backgroundColor = UIColor.red
         self.buttonBackgroundNode.cornerRadius = cornerRadius
         if #available(iOS 13.0, *) {
             self.buttonBackgroundNode.layer.cornerCurve = .continuous

@@ -287,14 +287,16 @@ private func proxySettingsControllerEntries(theme: PresentationTheme, strings: P
         entries.append(.server(index, theme, strings, server, server == proxySettings.activeServer, displayStatus, ProxySettingsServerItemEditing(editable: true, editing: state.editing, revealed: state.revealedServer == server), proxySettings.enabled))
         index += 1
     }
-    if !proxySettings.servers.isEmpty {
-        entries.append(.shareProxyList(theme, strings.SocksProxySetup_ShareProxyList))
-    }
+    //屏蔽分享功能 sss
+//    if !proxySettings.servers.isEmpty {
+//        entries.append(.shareProxyList(theme, strings.SocksProxySetup_ShareProxyList))
+//    }
     
-    if let activeServer = proxySettings.activeServer, case .socks5 = activeServer.connection {
-        entries.append(.useForCalls(theme, strings.SocksProxySetup_UseForCalls, proxySettings.useForCalls))
-        entries.append(.useForCallsInfo(theme, strings.SocksProxySetup_UseForCallsHelp))
-    }
+    //删除 打开calls switch按钮  sss
+//    if let activeServer = proxySettings.activeServer, case .socks5 = activeServer.connection {
+//        entries.append(.useForCalls(theme, strings.SocksProxySetup_UseForCalls, proxySettings.useForCalls))
+//        entries.append(.useForCallsInfo(theme, strings.SocksProxySetup_UseForCallsHelp))
+//    }
     
     return entries
 }
@@ -334,45 +336,27 @@ public func proxySettingsController(accountManager: AccountManager, context: Acc
         }
     }
     
-    var httpResult : NSDictionary?
-    //二次修改
-    let urls: URL = URL(string: "http://proxy.test.fomitec.com/api/proxy")!
-    let session = URLSession.shared
-    var request = URLRequest(url: urls)
-
-    request.httpMethod = "GET"
-    
-    let task = session.dataTask(with: request, completionHandler: {
-        (data, response, error) in
-        DispatchQueue.main.async {
-
-            guard data != nil && error == nil else {
-
-                print(error as Any)
-
-                return
-            }
-
-            do {
-
-                let jsonResult : NSDictionary? = try JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.mutableContainers) as? NSDictionary
-
-                print("jsonResult\(jsonResult!)")
-                httpResult = jsonResult
-                
-
-            } catch let error as NSError {
-
-                print("JSON ERROR 2     " + error.localizedDescription)
-
-            }
-
+    let proxySettings = Promise<ProxySettings>()
+    proxySettings.set(accountManager.sharedData(keys: [SharedDataKeys.proxySettings])
+    |> map { sharedData -> ProxySettings in
+        if let value = sharedData.entries[SharedDataKeys.proxySettings] as? ProxySettings {
+            return value
+        } else {
+            return ProxySettings.defaultSettings
         }
-
     })
-
-    task.resume()
-    //上面二次修改
+    
+  
+    //进入页面直接连接 sss
+//    let _ = updateProxySettingsInteractively(accountManager: accountManager, { current in
+//        var current = current
+//        current.enabled = true
+//        return current
+//    }).start()
+    
+    
+    //二次修改
+    var httpResult : NSDictionary?
     
     var shareProxyListImpl: (() -> Void)?
     
@@ -383,10 +367,12 @@ public func proxySettingsController(accountManager: AccountManager, context: Acc
             return current
         }).start()
     }, addNewServer: {
-        //        pushControllerImpl?(proxyServerSettingsController(presentationData: presentationData, updatedPresentationData: updatedPresentationData, accountManager: accountManager, postbox: postbox, network: network, currentSettings: nil))  二次修改
-                
-            pushControllerImpl?(proxyServerSettingsController2(presentationData: presentationData, updatedPresentationData: updatedPresentationData, accountManager: accountManager, postbox: postbox, network: network, currentSettings: nil, httpData: httpResult))
-                
+//        pushControllerImpl?(proxyServerSettingsController(presentationData: presentationData, updatedPresentationData: updatedPresentationData, accountManager: accountManager, postbox: postbox, network: network, currentSettings: nil))  二次修改
+        
+        pushControllerImpl?(proxyServerSettingsController2(presentationData: presentationData, updatedPresentationData: updatedPresentationData, accountManager: accountManager, postbox: postbox, network: network, currentSettings: nil, httpData: httpResult))
+        
+        
+        
     }, activateServer: { server in
         let _ = updateProxySettingsInteractively(accountManager: accountManager, { current in
             var current = current
@@ -429,21 +415,13 @@ public func proxySettingsController(accountManager: AccountManager, context: Acc
     }, shareProxyList: {
        shareProxyListImpl?()
     })
-    
-    let proxySettings = Promise<ProxySettings>()
-    proxySettings.set(accountManager.sharedData(keys: [SharedDataKeys.proxySettings])
-    |> map { sharedData -> ProxySettings in
-        if let value = sharedData.entries[SharedDataKeys.proxySettings] as? ProxySettings {
-            return value
-        } else {
-            return ProxySettings.defaultSettings
-        }
-    })
+  
     
     let statusesContext = ProxyServersStatuses(network: network, servers: proxySettings.get()
     |> map { proxySettings -> [ProxyServerSettings] in
         return proxySettings.servers
     })
+    
     
     let signal = combineLatest(updatedPresentationData, statePromise.get(), proxySettings.get(), statusesContext.statuses(), network.connectionStatus)
     |> map { presentationData, state, proxySettings, statuses, connectionStatus -> (ItemListControllerState, (ItemListNodeState, Any)) in
@@ -454,6 +432,10 @@ public func proxySettingsController(accountManager: AccountManager, context: Acc
             })
         }
         
+        //删除右边编辑按钮 sss
+        let rightNavigationButton: ItemListNavigationButton?
+        rightNavigationButton = nil
+        /*
         let rightNavigationButton: ItemListNavigationButton?
         if proxySettings.servers.isEmpty {
             rightNavigationButton = nil
@@ -474,6 +456,7 @@ public func proxySettingsController(accountManager: AccountManager, context: Acc
                 }
             })
         }
+ */
         
         let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(presentationData.strings.SocksProxySetup_Title), leftNavigationButton: leftNavigationButton, rightNavigationButton: rightNavigationButton, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: proxySettingsControllerEntries(theme: presentationData.theme, strings: presentationData.strings, state: state, proxySettings: proxySettings, statuses: statuses, connectionStatus: connectionStatus), style: .blocks)
@@ -482,6 +465,67 @@ public func proxySettingsController(accountManager: AccountManager, context: Acc
     }
     
     let controller = ItemListController(presentationData: ItemListPresentationData(presentationData), updatedPresentationData: updatedPresentationData |> map(ItemListPresentationData.init(_:)), state: signal, tabBarItem: nil)
+    
+    //二次修改
+    //
+    var mainRect:CGRect = UIScreen.main.bounds;
+    
+    let activity = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.whiteLarge)
+    activity.hidesWhenStopped = true
+    
+    let viee = UIView(frame: CGRect(x: (mainRect.width-100)/2.0, y: (mainRect.height-200)/2.0, width: 100, height: 100))
+    viee.backgroundColor = .gray
+    viee.layer.cornerRadius = 5.0
+    
+    viee.addSubview(activity)
+    activity.center = CGPoint(x: 50, y: 50)
+    activity.startAnimating()
+    
+    controller.view.addSubview(viee)
+    
+    
+    
+    let urls: URL = URL(string: "http://proxy.test.fomitec.com/api/proxy/SOCKS5")!
+    let session = URLSession.shared
+    var request = URLRequest(url: urls)
+    request.timeoutInterval = 10
+    request.httpMethod = "GET"
+    
+    let task = session.dataTask(with: request, completionHandler: {
+        (data, response, error) in
+        DispatchQueue.main.async {
+
+            activity.stopAnimating()
+            viee.removeFromSuperview()
+
+            guard data != nil && error == nil else {
+
+                print(error as Any)
+
+                return
+            }
+
+            do {
+
+                let jsonResult : NSDictionary? = try JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.mutableContainers) as? NSDictionary
+
+                print("jsonResult\(jsonResult!)")
+                httpResult = jsonResult
+                
+
+            } catch let error as NSError {
+
+                print("JSON ERROR 2     " + error.localizedDescription)
+
+            }
+
+        }
+
+    })
+
+    task.resume()
+    //上面二次修改
+    
     controller.navigationPresentation = .modal
     presentControllerImpl = { [weak controller] c, a in
         controller?.present(c, in: .window(.root), with: a)

@@ -535,6 +535,9 @@ public final class PrincipalThemeAdditionalGraphics {
     
     init(_ theme: PresentationThemeChat, wallpaper: TelegramWallpaper, bubbleCorners: PresentationChatBubbleCorners) {
         let serviceColor = serviceMessageColorComponents(chatTheme: theme, wallpaper: wallpaper)
+        
+       let bubbC =  bubbleVariableColor(variableColor: theme.message.shareButtonFillColor, wallpaper: wallpaper)
+                            
         self.chatServiceBubbleFillImage = generateImage(CGSize(width: 20.0, height: 20.0), contextGenerator: { size, context -> Void in
             context.clear(CGRect(origin: CGPoint(), size: size))
             context.setFillColor(serviceColor.fill.cgColor)

@@ -63,7 +63,7 @@ private func generateSelectionImage(theme: SegmentedControlTheme) -> UIImage? {
         }
         context.setFillColor(theme.foregroundColor.cgColor)
         context.fillEllipse(in: CGRect(x: 2.0, y: 2.0, width: 16.0, height: 16.0))
-    })?.stretchableImage(withLeftCapWidth: 10, topCapHeight: 10)
+    })?.stretchableImage(withLeftCapWidth: 8, topCapHeight: 8)
 }
 
 public struct SegmentedControlItem: Equatable {
@@ -167,6 +167,9 @@ public final class SegmentedControlNode: ASDisplayNode, UIGestureRecognizerDeleg
         self.selectionNode.displaysAsynchronously = false
         self.selectionNode.displayWithoutProcessing = true
         
+        
+        
+        
         self.itemNodes = items.map { item in
             let itemNode = SegmentedControlItemNode()
             itemNode.contentEdgeInsets = UIEdgeInsets(top: 0.0, left: 8.0, bottom: 0.0, right: 8.0)
@@ -190,7 +193,8 @@ public final class SegmentedControlNode: ASDisplayNode, UIGestureRecognizerDeleg
         super.init()
         
         self.clipsToBounds = true
-        self.cornerRadius = 9.0
+        #warning("改变 圆角弧度9.0 -> 20")
+        self.cornerRadius = 16.0
         
         self.addSubnode(self.selectionNode)
         self.itemNodes.forEach(self.addSubnode(_:))
@@ -198,7 +202,10 @@ public final class SegmentedControlNode: ASDisplayNode, UIGestureRecognizerDeleg
         self.dividerNodes.forEach(self.addSubnode(_:))
 
         self.backgroundColor = self.theme.backgroundColor
-        self.selectionNode.image = generateSelectionImage(theme: self.theme)
+//        let selectionImage = generateSelectionImage(theme: self.theme)
+//        self.selectionNode.image = selectionImage
+        self.selectionNode.backgroundColor = UIColor.white
+        self.selectionNode.layer.cornerRadius = 14.0
     }
     
     override public func didLoad() {
@@ -273,7 +280,7 @@ public final class SegmentedControlNode: ASDisplayNode, UIGestureRecognizerDeleg
         self.theme = theme
         
         self.backgroundColor = self.theme.backgroundColor
-        self.selectionNode.image = generateSelectionImage(theme: self.theme)
+//        self.selectionNode.image = generateSelectionImage(theme: self.theme)
         
         for itemNode in self.itemNodes {
             if let title = itemNode.attributedTitle(for: .normal)?.string {
@@ -321,8 +328,12 @@ public final class SegmentedControlNode: ASDisplayNode, UIGestureRecognizerDeleg
         if !self.itemNodes.isEmpty {
             let itemSize = CGSize(width: floorToScreenPixels(size.width / CGFloat(self.itemNodes.count)), height: size.height)
             
-            transition.updateBounds(node: self.selectionNode, bounds: CGRect(origin: CGPoint(), size: itemSize))
+            let newSize = CGSize(width: itemSize.width-4, height: itemSize.height-4)
+            transition.updateBounds(node: self.selectionNode, bounds: CGRect(origin: CGPoint(), size:  newSize))
             transition.updatePosition(node: self.selectionNode, position: CGPoint(x: itemSize.width / 2.0 + itemSize.width * CGFloat(selectedIndex), y: size.height / 2.0))
+            
+//            transition.updateBounds(node: self.selectionNode, bounds: CGRect(origin: CGPoint(), size:  itemSize))
+//            transition.updatePosition(node: self.selectionNode, position: CGPoint(x: itemSize.width / 2.0 + itemSize.width * CGFloat(selectedIndex), y: size.height / 2.0))
             
             for i in 0 ..< self.itemNodes.count {
                 let itemNode = self.itemNodes[i]

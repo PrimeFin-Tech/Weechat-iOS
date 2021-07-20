@@ -21,13 +21,27 @@ public final class TabBarControllerTheme {
         self.backgroundColor = backgroundColor
         self.tabBarBackgroundColor = tabBarBackgroundColor
         self.tabBarSeparatorColor = tabBarSeparatorColor
-        self.tabBarIconColor = tabBarIconColor
-        self.tabBarSelectedIconColor = tabBarSelectedIconColor
-        self.tabBarTextColor = tabBarTextColor
-        self.tabBarSelectedTextColor = tabBarSelectedTextColor
-        self.tabBarBadgeBackgroundColor = tabBarBadgeBackgroundColor
-        self.tabBarBadgeStrokeColor = tabBarBadgeStrokeColor
-        self.tabBarBadgeTextColor = tabBarBadgeTextColor
+        
+        //二次修改
+//        self.tabBarIconColor = tabBarIconColor
+//        self.tabBarSelectedIconColor = tabBarSelectedIconColor
+//        self.tabBarTextColor = tabBarTextColor
+//        self.tabBarSelectedTextColor = tabBarSelectedTextColor
+        self.tabBarIconColor = UIColor.black
+        self.tabBarSelectedIconColor = UIColor.red
+        self.tabBarTextColor = UIColor.black
+        self.tabBarSelectedTextColor = UIColor.red
+        
+        
+        
+        
+        
+        //self.tabBarBadgeBackgroundColor = tabBarBadgeBackgroundColor
+        self.tabBarBadgeBackgroundColor = UIColor.white
+//        self.tabBarBadgeStrokeColor = tabBarBadgeStrokeColor
+        self.tabBarBadgeStrokeColor = UIColor.white
+//        self.tabBarBadgeTextColor = tabBarBadgeTextColor
+        self.tabBarBadgeTextColor = UIColor.red
         self.tabBarExtractedIconColor = tabBarExtractedIconColor
         self.tabBarExtractedTextColor = tabBarExtractedTextColor
     }

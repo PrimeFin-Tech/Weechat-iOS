@@ -25,6 +25,8 @@ final class ChatAvatarNavigationNode: ASDisplayNode {
         self.containerNode = ContextControllerSourceNode()
         self.avatarNode = AvatarNode(font: normalFont)
         
+//        self.avatarNode.backgroundColor = UIColor.red
+        
         super.init()
         
         self.addSubnode(self.containerNode)

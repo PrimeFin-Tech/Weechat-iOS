@@ -460,7 +460,7 @@ final class LocationPickerControllerNode: ViewControllerTracingNode, CLLocationM
                             case .share:
                                 title = presentationData.strings.Map_SendThisLocation
                             case .pick:
-                                title = presentationData.strings.Map_SetThisLocation
+                                title = "设置这个位置"
                         }
                         entries.append(.location(presentationData.theme, title, address ?? presentationData.strings.Map_Locating, nil, coordinate))
                     case .selecting:
@@ -469,7 +469,8 @@ final class LocationPickerControllerNode: ViewControllerTracingNode, CLLocationM
                             case .share:
                                 title = presentationData.strings.Map_SendThisLocation
                             case .pick:
-                                title = presentationData.strings.Map_SetThisLocation
+                                title = "设置这个位置"
+
                         }
                         entries.append(.location(presentationData.theme, title, presentationData.strings.Map_Locating, nil, nil))
                     case let .venue(venue):
@@ -487,7 +488,8 @@ final class LocationPickerControllerNode: ViewControllerTracingNode, CLLocationM
                             case .share:
                                 title = presentationData.strings.Map_SendMyCurrentLocation
                             case .pick:
-                                title = presentationData.strings.Map_SetThisLocation
+                                title = "设置这个位置"
+
                         }
                         entries.append(.location(presentationData.theme, title, (userLocation?.horizontalAccuracy).flatMap { presentationData.strings.Map_AccurateTo(stringForDistance(strings: presentationData.strings, distance: $0)).0 } ?? presentationData.strings.Map_Locating, nil, userLocation?.coordinate))
                 }
@@ -496,7 +498,7 @@ final class LocationPickerControllerNode: ViewControllerTracingNode, CLLocationM
                     entries.append(.liveLocation(presentationData.theme, presentationData.strings.Map_ShareLiveLocation, presentationData.strings.Map_ShareLiveLocationHelp, userLocation?.coordinate))
                 }
                 
-                entries.append(.header(presentationData.theme, presentationData.strings.Map_ChooseAPlace.uppercased()))
+                entries.append(.header(presentationData.theme, "或者选择一个地方"))
                 
                 let displayedVenues = foundVenues != nil || state.searchingVenuesAround ? foundVenues : venues
                 var index: Int = 0

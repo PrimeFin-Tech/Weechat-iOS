@@ -34,7 +34,7 @@ public final class PermissionContentNode: ASDisplayNode {
     public let kind: Int32
 
     private let iconNode: ASImageNode
-    private let nearbyIconNode: PeersNearbyIconNode?
+    private let nearbyIconNode: PeersNearbyIconNode? //波 动画
     private let animationNode: AnimatedStickerNode?
     private let titleNode: ImmediateTextNode
     private let subtitleNode: ImmediateTextNode

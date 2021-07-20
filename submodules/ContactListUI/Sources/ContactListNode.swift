@@ -25,11 +25,14 @@ import AppBundle
 import ContextUI
 import PhoneNumberFormat
 
+//排序的下三角形绘制
 private let dropDownIcon = { () -> UIImage in
     UIGraphicsBeginImageContextWithOptions(CGSize(width: 12.0, height: 12.0), false, 0.0)
     let context = UIGraphicsGetCurrentContext()!
     context.setBlendMode(.copy)
-    context.setFillColor(UIColor.black.cgColor)
+    //根据UI更改填充颜色
+    let dropDownColor: UIColor = UIColor(hexString: "#0080C4")!
+    context.setFillColor(dropDownColor.cgColor)
     context.move(to: CGPoint(x: 0.0, y: 3.0))
     context.addLine(to: CGPoint(x: 12.0, y: 3.0))
     context.addLine(to: CGPoint(x: 6.0, y: 9.0))
@@ -159,9 +162,10 @@ private enum ContactListNodeEntry: Comparable, Identifiable {
                     interaction.activateSearch()
                 })
             case let .sort(_, strings, sortOrder):
-                var text = strings.Contacts_SortedByName
+                //按照时间排序
+                var text = presentationData.strings.Contacts_SortByName
                 if case .presence = sortOrder {
-                    text = strings.Contacts_SortedByPresence
+                    text = presentationData.strings.Contacts_SortByPresence
                 }
                 return ContactListActionItem(presentationData: ItemListPresentationData(presentationData), title: text, icon: .inline(dropDownIcon, .right), highlight: .alpha, accessible: false, header: nil, action: {
                     interaction.openSortMenu()
@@ -918,6 +922,7 @@ public final class ContactListNode: ASDisplayNode {
         var authorizeImpl: (() -> Void)?
         var openPrivacyPolicyImpl: (() -> Void)?
         
+        //权限允许
         self.authorizationNode = PermissionContentNode(theme: self.presentationData.theme, strings: self.presentationData.strings, kind: PermissionKind.contacts.rawValue, icon: .image(UIImage(bundleImageName: "Settings/Permissions/Contacts")), title: self.presentationData.strings.Contacts_PermissionsTitle, text: self.presentationData.strings.Contacts_PermissionsText, buttonTitle: self.presentationData.strings.Contacts_PermissionsAllow, buttonAction: {
             authorizeImpl?()
         }, openPrivacyPolicy: {
@@ -928,10 +933,14 @@ public final class ContactListNode: ASDisplayNode {
         super.init()
         
         self.backgroundColor = self.presentationData.theme.chatList.backgroundColor
+        
         self.listNode.verticalScrollIndicatorColor = self.presentationData.theme.list.scrollIndicatorColor
         
         self.selectionStateValue = selectionState
         self.selectionStatePromise.set(.single(selectionState))
+        
+        //listNode 通讯录table sss
+        
         
         self.addSubnode(self.listNode)
         self.addSubnode(self.indexNode)
@@ -941,6 +950,7 @@ public final class ContactListNode: ASDisplayNode {
         let previousEntries = Atomic<[ContactListNodeEntry]?>(value: nil)
         let previousSelectionState = Atomic<ContactListNodeGroupSelectionState?>(value: nil)
         
+        //排序
         let interaction = ContactListNodeInteraction(activateSearch: { [weak self] in
             self?.activateSearch?()
         }, openSortMenu: { [weak self] in

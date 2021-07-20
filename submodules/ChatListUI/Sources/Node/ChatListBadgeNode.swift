@@ -53,6 +53,7 @@ final class ChatListBadgeNode: ASDisplayNode {
         self.textNode.isUserInteractionEnabled = false
         self.textNode.displaysAsynchronously = false
         
+        
         self.measureTextNode = TextNode()
         
         super.init()

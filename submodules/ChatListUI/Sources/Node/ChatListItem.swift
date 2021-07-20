@@ -576,6 +576,7 @@ class ChatListItemNode: ItemListRevealOptionsItemNode {
         
         self.avatarNode = AvatarNode(font: avatarPlaceholderFont(size: 26.0))
         
+        
         self.highlightedBackgroundNode = ASDisplayNode()
         self.highlightedBackgroundNode.isLayerBacked = true
         
@@ -591,6 +592,7 @@ class ChatListItemNode: ItemListRevealOptionsItemNode {
         self.authorNode.isUserInteractionEnabled = false
         self.authorNode.displaysAsynchronously = true
         
+        //内容
         self.textNode = TextNode()
         self.textNode.isUserInteractionEnabled = false
         self.textNode.displaysAsynchronously = true
@@ -599,14 +601,21 @@ class ChatListItemNode: ItemListRevealOptionsItemNode {
         self.inputActivitiesNode.isUserInteractionEnabled = false
         self.inputActivitiesNode.alpha = 0.0
         
+        //时间
         self.dateNode = TextNode()
         self.dateNode.isUserInteractionEnabled = false
         self.dateNode.displaysAsynchronously = true
         
+        
         self.statusNode = ChatListStatusNode()
+        //右下角角标数量
         self.badgeNode = ChatListBadgeNode()
         self.mentionBadgeNode = ChatListBadgeNode()
         self.onlineNode = PeerOnlineMarkerNode()
+        
+        
+        
+        
         
         self.pinnedIconNode = ASImageNode()
         self.pinnedIconNode.isLayerBacked = true
@@ -1231,7 +1240,7 @@ class ChatListItemNode: ItemListRevealOptionsItemNode {
                     }
                 }
             }
-            
+            #warning("已读未读 圆角颜色 画图")
             if unreadCount.unread {
                 if !isPeerGroup, let message = messages.last, message.tags.contains(.unseenPersonalMessage), unreadCount.count == 1 {
                 } else {

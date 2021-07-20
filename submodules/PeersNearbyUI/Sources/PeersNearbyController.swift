@@ -222,7 +222,7 @@ private enum PeersNearbyEntry: ItemListNodeEntry {
             case let .empty(theme, text):
                 return ItemListPlaceholderItem(theme: theme, text: text, sectionId: self.section, style: .blocks)
             case let .visibility(theme, title, stop):
-                return ItemListPeerActionItem(presentationData: presentationData, icon: stop ? PresentationResourcesItemList.makeInvisibleIcon(theme) : PresentationResourcesItemList.makeVisibleIcon(theme), title: title, alwaysPlain: false, sectionId: self.section, color: stop ? .destructive : .accent, editing: false, action: {
+                return ItemListPeerActionItem(presentationData: presentationData, icon: stop ? UIImage(named: "nearbyIcon_3") : UIImage(named: "nearbyIcon_3_b"), title: title, alwaysPlain: false, sectionId: self.section, color: stop ? .destructive : .accent, editing: false, action: {
                     arguments.toggleVisibility(!stop)
                 })
             case let .user(_, _, strings, dateTimeFormat, nameDisplayOrder, peer):
@@ -243,7 +243,7 @@ private enum PeersNearbyEntry: ItemListNodeEntry {
             case let .groupsHeader(_, text, loading):
                 return ItemListSectionHeaderItem(presentationData: presentationData, text: text, activityIndicator: loading ? .left : .none, sectionId: self.section)
             case let .createGroup(theme, title, latitude, longitude, address):
-                return ItemListPeerActionItem(presentationData: presentationData, icon: PresentationResourcesItemList.createGroupIcon(theme), title: title, alwaysPlain: false, sectionId: self.section, editing: false, action: {
+                return ItemListPeerActionItem(presentationData: presentationData, icon: UIImage(named: "nearbyIcon_4"), title: title, alwaysPlain: false, sectionId: self.section, editing: false, action: {
                     if let latitude = latitude, let longitude = longitude {
                         arguments.openCreateGroup(latitude, longitude, address)
                     }
@@ -308,10 +308,10 @@ private func peersNearbyControllerEntries(data: PeersNearbyData?, state: PeersNe
     var entries: [PeersNearbyEntry] = []
     
     entries.append(.header(presentationData.theme, presentationData.strings.PeopleNearby_DiscoverDescription))
-    entries.append(.usersHeader(presentationData.theme, presentationData.strings.PeopleNearby_Users.uppercased(), displayLoading && data == nil))
+    entries.append(.usersHeader(presentationData.theme, presentationData.strings.Contacts_AddPeopleNearby, displayLoading && data == nil))
     
     let visible = state.visibilityExpires != nil
-    entries.append(.visibility(presentationData.theme, visible ? presentationData.strings.PeopleNearby_MakeInvisible : presentationData.strings.PeopleNearby_MakeVisible, visible))
+    entries.append(.visibility(presentationData.theme, visible ? presentationData.strings.PeopleNearby_MakeVisible : presentationData.strings.PeopleNearby_MakeVisible, visible))
     
     if let data = data, !data.users.isEmpty {
         var index: Int32 = 0
@@ -329,7 +329,7 @@ private func peersNearbyControllerEntries(data: PeersNearbyData?, state: PeersNe
         }
         
         if !effectiveExpanded {
-            entries.append(.expand(presentationData.theme, presentationData.strings.PeopleNearby_ShowMorePeople(Int32(data.users.count) - maxUsersDisplayedLimit)))
+            entries.append(.expand(presentationData.theme, "显示更多"))
         }
     }
     
@@ -474,7 +474,7 @@ public func peersNearbyController(context: AccountContext) -> ViewController {
         let presentationData = context.sharedContext.currentPresentationData.with { $0 }
         
         if visible {
-            presentControllerImpl?(textAlertController(context: context, title: presentationData.strings.PeopleNearby_MakeVisibleTitle, text: presentationData.strings.PeopleNearby_MakeVisibleDescription, actions: [TextAlertAction(type: .genericAction, title: presentationData.strings.Common_Cancel, action: {}), TextAlertAction(type: .defaultAction, title: presentationData.strings.Common_OK, action: {
+            presentControllerImpl?(textAlertController(context: context, title: "温馨提示", text: "附近的用户可以查看你的资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以在任何时候停止分享你的资料。你的电话号码将会被隐藏。", actions: [TextAlertAction(type: .genericAction, title: "取消", action: {}), TextAlertAction(type: .defaultAction, title: "确认", action: {
                 let _ = (coordinatePromise.get()
                 |> deliverOnMainQueue).start(next: { coordinate in
                     if let coordinate = coordinate {

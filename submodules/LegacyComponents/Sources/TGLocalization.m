@@ -49,7 +49,16 @@ static NSString *fallbackString(NSString *key, NSString *code) {
     self = [super init];
     if (self != nil) {
         _version = version;
-        _code = code;
+        
+        NSString * codeN = @"en";
+        NSString * saveLanguageCodeNMN = [[NSUserDefaults standardUserDefaults] stringForKey:@"LanguageCodeNN"];
+        
+        if ([saveLanguageCodeNMN isEqualToString:@"zh-Hans"]) {
+            codeN = @"zh-Hans";
+        }
+        _code = codeN;
+        
+//        _code = code;
         NSString *appTitle = [[[NSBundle mainBundle] localizedInfoDictionary] objectForKey:@"CFBundleDisplayName"];
         if (appTitle == nil) {
             appTitle = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"];
@@ -73,7 +82,7 @@ static NSString *fallbackString(NSString *key, NSString *code) {
         }
         _isActive = isActive;
         
-        NSString *rawCode = code;
+        NSString *rawCode = _code;
         NSRange range = [rawCode rangeOfString:@"_"];
         if (range.location != NSNotFound) {
             rawCode = [rawCode substringToIndex:range.location];

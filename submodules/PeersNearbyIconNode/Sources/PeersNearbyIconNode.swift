@@ -178,7 +178,10 @@ public final class PeersNearbyIconNode: ASDisplayNode {
         
         self.iconNode = ASImageNode()
         self.iconNode.isOpaque = false
-        self.wavesNode = PeersNearbyIconWavesNode(color: theme.list.itemAccentColor)
+        //二次修改
+//        self.wavesNode = PeersNearbyIconWavesNode(color: theme.list.itemAccentColor)
+        
+        self.wavesNode = PeersNearbyIconWavesNode(color: UIColor.red)
         
         super.init()
         
@@ -193,7 +196,9 @@ public final class PeersNearbyIconNode: ASDisplayNode {
         self.theme = theme
         
         self.iconNode.image = generateIcon(size: self.bounds.size, color: self.theme.list.itemAccentColor, contentColor: self.theme.list.itemCheckColors.foregroundColor)
-        self.wavesNode.color = theme.list.itemAccentColor
+        //二次修改
+//        self.wavesNode.color = theme.list.itemAccentColor
+        self.wavesNode.color = UIColor.red
     }
     
     override public func layout() {
@@ -201,7 +206,11 @@ public final class PeersNearbyIconNode: ASDisplayNode {
         
         if let image = self.iconNode.image, image.size.width == self.bounds.width {
         } else {
-            self.iconNode.image = generateIcon(size: self.bounds.size, color: self.theme.list.itemAccentColor, contentColor: self.theme.list.itemCheckColors.foregroundColor)
+            //二次修改
+//            self.iconNode.image = generateIcon(size: self.bounds.size, color: self.theme.list.itemAccentColor, contentColor: self.theme.list.itemCheckColors.foregroundColor)
+            #warning("后期修改")
+            //查找附近的人 切图有后需要替换
+            self.iconNode.image = UIImage(named: "nearbyIcon") //UIImage(bundleImageName: "Settings/Permissions/CellularData")
         }
         self.iconNode.frame = self.bounds
         self.wavesNode.frame = self.bounds.insetBy(dx: -self.bounds.width * 0.3, dy: -self.bounds.height * 0.3)

@@ -112,6 +112,7 @@ public class ContactListActionItem: ListViewItem, ListViewItemWithHeader {
     }
 }
 
+// 邀请好友/附近的人View
 class ContactListActionItemNode: ListViewItemNode {
     private let backgroundNode: ASDisplayNode
     private let topStripeNode: ASDisplayNode
@@ -141,10 +142,13 @@ class ContactListActionItemNode: ListViewItemNode {
         self.titleNode.contentMode = .left
         self.titleNode.contentsScale = UIScreen.main.scale
         
+//        self.titleNode.backgroundColor = .red
+        
         self.iconNode = ASImageNode()
         self.iconNode.isLayerBacked = true
         self.iconNode.displayWithoutProcessing = true
         self.iconNode.displaysAsynchronously = false
+        
         
         self.highlightedBackgroundNode = ASDisplayNode()
         self.highlightedBackgroundNode.isLayerBacked = true
@@ -204,7 +208,9 @@ class ContactListActionItemNode: ListViewItemNode {
                         strongSelf.backgroundNode.backgroundColor = item.presentationData.theme.list.plainBackgroundColor
                         strongSelf.highlightedBackgroundNode.backgroundColor = item.presentationData.theme.list.itemHighlightedBackgroundColor
                         
-                        strongSelf.iconNode.image = generateTintedImage(image: item.icon.image, color: item.presentationData.theme.list.itemAccentColor)
+                        strongSelf.iconNode.image = item.icon.image
+                        //去除顶部的遮罩颜色从
+//                        strongSelf.iconNode.image = generateTintedImage(image: item.icon.image, color: item.presentationData.theme.list.itemAccentColor)
                     }
                     
                     if item.accessible && strongSelf.activateArea.supernode == nil {

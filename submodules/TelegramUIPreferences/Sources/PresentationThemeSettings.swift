@@ -537,7 +537,10 @@ public struct PresentationChatBubbleSettings: PostboxCoding, Equatable {
     public var auxiliaryRadius: Int32
     public var mergeBubbleCorners: Bool
     
-    public static var `default`: PresentationChatBubbleSettings = PresentationChatBubbleSettings(mainRadius: 16, auxiliaryRadius: 8, mergeBubbleCorners: true)
+//    public static var `default`: PresentationChatBubbleSettings = PresentationChatBubbleSettings(mainRadius: 16, auxiliaryRadius: 8, mergeBubbleCorners: true)
+    
+    //修改气泡cornerRadius圆角大小
+    public static var `default`: PresentationChatBubbleSettings = PresentationChatBubbleSettings(mainRadius: 8, auxiliaryRadius: 4, mergeBubbleCorners: true)
     
     public init(mainRadius: Int32, auxiliaryRadius: Int32, mergeBubbleCorners: Bool) {
         self.mainRadius = mainRadius
@@ -546,8 +549,11 @@ public struct PresentationChatBubbleSettings: PostboxCoding, Equatable {
     }
     
     public init(decoder: PostboxDecoder) {
-        self.mainRadius = decoder.decodeInt32ForKey("mainRadius", orElse: 16)
-        self.auxiliaryRadius = decoder.decodeInt32ForKey("auxiliaryRadius", orElse: 8)
+//        self.mainRadius = decoder.decodeInt32ForKey("mainRadius", orElse: 16)
+//        self.auxiliaryRadius = decoder.decodeInt32ForKey("auxiliaryRadius", orElse: 8)
+        self.mainRadius = decoder.decodeInt32ForKey("mainRadius", orElse: 8)
+        self.auxiliaryRadius = decoder.decodeInt32ForKey("auxiliaryRadius", orElse: 4)
+        
         self.mergeBubbleCorners = decoder.decodeInt32ForKey("mergeBubbleCorners", orElse: 1) != 0
     }
     
@@ -606,9 +612,8 @@ public struct PresentationThemeSettings: PreferencesEntry {
     }
     
     public static var defaultSettings: PresentationThemeSettings {
-        
-        //        return PresentationThemeSettings(theme: .builtin(.dayClassic), themeSpecificAccentColors: [:], themeSpecificChatWallpapers: [:], useSystemFont: true, fontSize: .regular, listsFontSize: .regular, chatBubbleSettings: .default, automaticThemeSwitchSetting: AutomaticThemeSwitchSetting(trigger: .system, theme: .builtin(.night)), largeEmoji: true, disableAnimations: true)
-                return PresentationThemeSettings(theme: .builtin(.nightAccent), themeSpecificAccentColors: [:], themeSpecificChatWallpapers: [:], useSystemFont: true, fontSize: .regular, listsFontSize: .regular, chatBubbleSettings: .default, automaticThemeSwitchSetting: AutomaticThemeSwitchSetting(trigger: .system, theme: .builtin(.night)), largeEmoji: true, disableAnimations: true)  //二次修改
+//        return PresentationThemeSettings(theme: .builtin(.dayClassic), themeSpecificAccentColors: [:], themeSpecificChatWallpapers: [:], useSystemFont: true, fontSize: .regular, listsFontSize: .regular, chatBubbleSettings: .default, automaticThemeSwitchSetting: AutomaticThemeSwitchSetting(trigger: .system, theme: .builtin(.night)), largeEmoji: true, disableAnimations: true)
+        return PresentationThemeSettings(theme: .builtin(.day), themeSpecificAccentColors: [:], themeSpecificChatWallpapers: [:], useSystemFont: true, fontSize: .regular, listsFontSize: .regular, chatBubbleSettings: .default, automaticThemeSwitchSetting: AutomaticThemeSwitchSetting(trigger: .system, theme: .builtin(.night)), largeEmoji: true, disableAnimations: true)  //二次修改
     }
     
     public init(theme: PresentationThemeReference, themeSpecificAccentColors: [Int64: PresentationThemeAccentColor], themeSpecificChatWallpapers: [Int64: TelegramWallpaper], useSystemFont: Bool, fontSize: PresentationFontSize, listsFontSize: PresentationFontSize, chatBubbleSettings: PresentationChatBubbleSettings, automaticThemeSwitchSetting: AutomaticThemeSwitchSetting, largeEmoji: Bool, disableAnimations: Bool) {

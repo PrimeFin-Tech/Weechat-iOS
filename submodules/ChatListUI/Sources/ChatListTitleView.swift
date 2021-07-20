@@ -154,10 +154,16 @@ final class ChatListTitleView: UIView, NavigationBarTitleView, NavigationBarTitl
         
         self.addSubnode(self.activityIndicator)
         self.addSubnode(self.titleNode)
-        self.addSubnode(self.proxyNode)
-        self.addSubview(self.lockView)
-        self.addSubview(self.buttonView)
-        self.addSubview(self.proxyButton)
+        
+        //隐藏 代理入口
+        
+//        self.addSubnode(self.proxyNode)
+//        self.addSubview(self.lockView)
+//        self.addSubview(self.buttonView)
+//        self.addSubview(self.proxyButton)
+        
+        
+        
         
         self.buttonView.highligthedChanged = { [weak self] highlighted in
             if let strongSelf = self {

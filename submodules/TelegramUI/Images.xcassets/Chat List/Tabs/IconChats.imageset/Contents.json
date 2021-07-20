@@ -1,12 +1,23 @@
 {
   "images" : [
     {
+      "filename" : "IconChats.png",
       "idiom" : "universal",
-      "filename" : "ic_tb_chats.pdf"
+      "scale" : "1x"
+    },
+    {
+      "filename" : "IconChats@2x.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "IconChats@3x.png",
+      "idiom" : "universal",
+      "scale" : "3x"
     }
   ],
   "info" : {
-    "version" : 1,
-    "author" : "xcode"
+    "author" : "xcode",
+    "version" : 1
   }
 }

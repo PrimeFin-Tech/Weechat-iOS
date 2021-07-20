@@ -47,6 +47,7 @@ final class ContactsControllerNode: ASDisplayNode {
     let contactListNode: ContactListNode
     
     private let context: AccountContext
+    //模糊查找 sss
     private(set) var searchDisplayController: SearchDisplayController?
     
     private var containerLayout: (ContainerViewLayout, CGFloat)?
@@ -55,7 +56,10 @@ final class ContactsControllerNode: ASDisplayNode {
     
     var requestDeactivateSearch: (() -> Void)?
     var requestOpenPeerFromSearch: ((ContactListPeer) -> Void)?
+    
+    //邀请好友 sss
     var requestAddContact: ((String) -> Void)?
+    //附近的人 sss
     var openPeopleNearby: (() -> Void)?
     var openInvite: (() -> Void)?
     
@@ -72,10 +76,15 @@ final class ContactsControllerNode: ASDisplayNode {
         
         var addNearbyImpl: (() -> Void)?
         var inviteImpl: (() -> Void)?
-        let options = [ContactListAdditionalOption(title: presentationData.strings.Contacts_AddPeopleNearby, icon: .generic(UIImage(bundleImageName: "Contact List/PeopleNearbyIcon")!), action: {
-            addNearbyImpl?()
-        }), ContactListAdditionalOption(title: presentationData.strings.Contacts_InviteFriends, icon: .generic(UIImage(bundleImageName: "Contact List/AddMemberIcon")!), action: {
+        
+        let addImg = UIImage(bundleImageName: "Contact List/AddMemberIcon")!
+        
+        //替换位置 sss
+        let options = [ContactListAdditionalOption(title: presentationData.strings.Contacts_InviteFriends, icon: .generic(UIImage(bundleImageName: "Contact List/AddMemberIcon")!), action: {
             inviteImpl?()
+        }),
+        ContactListAdditionalOption(title: presentationData.strings.Contacts_AddPeopleNearby, icon: .generic(UIImage(bundleImageName: "Contact List/PeopleNearbyIcon")!), action: {
+            addNearbyImpl?()
         })]
         
         let presentation = sortOrder
@@ -118,18 +127,20 @@ final class ContactsControllerNode: ASDisplayNode {
             }
         })
         
+        //添加附近的人事件 sss
         addNearbyImpl = { [weak self] in
             if let strongSelf = self {
                 strongSelf.openPeopleNearby?()
             }
         }
-        
+        //邀请好友事件 sss
         inviteImpl = { [weak self] in
             if let strongSelf = self {
                 strongSelf.openInvite?()
             }
         }
         
+        //长按联系人 弹框事件
         contextAction = { [weak self] peer, node, gesture in
             self?.contextAction(peer: peer, node: node, gesture: gesture)
         }
@@ -180,6 +191,7 @@ final class ContactsControllerNode: ASDisplayNode {
         contactsController.presentInGlobalOverlay(contextController)
     }
     
+    //开始搜索通讯录联系人
     func activateSearch(placeholderNode: SearchBarPlaceholderNode) {
         guard let (containerLayout, navigationBarHeight) = self.containerLayout, let navigationBar = self.navigationBar, self.searchDisplayController == nil else {
             return

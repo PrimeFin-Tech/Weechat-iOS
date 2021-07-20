@@ -945,9 +945,12 @@ func availableActionsForMemberOfPeer(accountPeerId: PeerId, peer: Peer?, member:
 func peerInfoHeaderButtons(peer: Peer?, cachedData: CachedPeerData?, isOpenedFromChat: Bool, videoCallsEnabled: Bool, isSecretChat: Bool, isContact: Bool) -> [PeerInfoHeaderButtonKey] {
     var result: [PeerInfoHeaderButtonKey] = []
     if let user = peer as? TelegramUser {
+        //如果不是从聊天列表页进入的 添加发送消息按钮
         if !isOpenedFromChat {
             result.append(.message)
         }
+        //添加拨打电话
+//        result.append(.call)
         var callsAvailable = false
         var videoCallsAvailable = false
         if !user.isDeleted, user.botInfo == nil, !user.flags.contains(.isSupport) {
@@ -960,17 +963,26 @@ func peerInfoHeaderButtons(peer: Peer?, cachedData: CachedPeerData?, isOpenedFro
             }
         }
         if callsAvailable {
-            result.append(.call)
+            //添加语音
+//            result.append(.call)
+            
+            result.append(.voiceChat)
+            
+            
             if videoCallsEnabled && videoCallsAvailable {
+                //添加视频
                 result.append(.videoCall)
             }
         }
-        result.append(.mute)
+        ////more 删除
+//        result.append(.mute)
         if isOpenedFromChat {
+            //搜索 删除
             result.append(.search)
         }
         if (isSecretChat && !isContact) || user.flags.contains(.isSupport) {
         } else {
+            //more 删除
             result.append(.more)
         }
     } else if let channel = peer as? TelegramChannel {
@@ -1018,7 +1030,10 @@ func peerInfoHeaderButtons(peer: Peer?, cachedData: CachedPeerData?, isOpenedFro
         if canViewStats {
             displayLeave = false
         }
-        result.append(.mute)
+        //添加拨打电话
+//        result.append(.call)
+        
+//        result.append(.mute)
         if hasVoiceChat || canStartVoiceChat {
             result.append(.voiceChat)
         }
@@ -1045,6 +1060,7 @@ func peerInfoHeaderButtons(peer: Peer?, cachedData: CachedPeerData?, isOpenedFro
             result.append(.more)
         }
     } else if let group = peer as? TelegramGroup {
+        //群组
         var canEditGroupInfo = false
         var canEditMembers = false
         var canAddMembers = false
@@ -1084,7 +1100,7 @@ func peerInfoHeaderButtons(peer: Peer?, cachedData: CachedPeerData?, isOpenedFro
         if canAddMembers {
             result.append(.addMember)
         }
-        result.append(.mute)
+//        result.append(.mute)
         if hasVoiceChat || canStartVoiceChat {
             result.append(.voiceChat)
         }

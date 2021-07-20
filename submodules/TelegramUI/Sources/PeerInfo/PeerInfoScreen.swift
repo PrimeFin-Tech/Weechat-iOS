@@ -60,6 +60,8 @@ import HashtagSearchUI
 import ActionSheetPeerItem
 import TelegramCallsUI
 import PeerInfoAvatarListNode
+import WebUI
+
 
 protocol PeerInfoScreenItem: class {
     var id: AnyHashable { get }
@@ -528,6 +530,9 @@ private enum PeerInfoSettingsSection {
     case username
     case addAccount
     case logout
+    //二次修改
+    case about
+    case Privacy_Policy
 }
 
 private final class PeerInfoInteraction {
@@ -658,7 +663,7 @@ private enum SettingsSection: Int, CaseIterable {
     case extra
     case support
 }
-
+//二次修改
 private func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentationData: PresentationData, interaction: PeerInfoInteraction, isExpanded: Bool) -> [(AnyHashable, [PeerInfoScreenItem])] {
     guard let data = data else {
         return []
@@ -675,18 +680,21 @@ private func settingsItems(data: PeerInfoScreenData?, context: AccountContext, p
         setPhotoTitle = presentationData.strings.Settings_SetNewProfilePhotoOrVideo
         displaySetPhoto = isExpanded
     } else {
-        setPhotoTitle = presentationData.strings.Settings_SetProfilePhotoOrVideo
+        setPhotoTitle = "你好" //presentationData.strings.Settings_SetProfilePhotoOrVideo
         displaySetPhoto = true
     }
+    
     if displaySetPhoto {
-        items[.edit]!.append(PeerInfoScreenActionItem(id: 0, text: setPhotoTitle, icon: UIImage(bundleImageName: "Settings/SetAvatar"), action: {
-            interaction.openSettings(.avatar)
-        }))
+        //二次修改 删除
+//        items[.edit]!.append(PeerInfoScreenActionItem(id: 0, text: setPhotoTitle, icon: UIImage(bundleImageName: "Settings/SetAvatar"), action: {
+//            interaction.openSettings(.avatar)
+//        }))
     }
     if let peer = data.peer, (peer.addressName ?? "").isEmpty {
-        items[.edit]!.append(PeerInfoScreenActionItem(id: 1, text: presentationData.strings.Settings_SetUsername, icon: UIImage(bundleImageName: "Settings/SetUsername"), action: {
-            interaction.openSettings(.username)
-        }))
+        //二次修改 删除
+//        items[.edit]!.append(PeerInfoScreenActionItem(id: 1, text: presentationData.strings.Settings_SetUsername, icon: UIImage(bundleImageName: "Settings/SetUsername"), action: {
+//            interaction.openSettings(.username)
+//        }))
     }
     
     if let settings = data.globalSettings {
@@ -727,27 +735,31 @@ private func settingsItems(data: PeerInfoScreenData?, context: AccountContext, p
             }
         }
         
-        if !settings.proxySettings.servers.isEmpty {
-            let proxyType: String
-            if settings.proxySettings.enabled, let activeServer = settings.proxySettings.activeServer {
-                switch activeServer.connection {
-                    case .mtp:
-                        proxyType = presentationData.strings.SocksProxySetup_ProxyTelegram
-                    case .socks5:
-                        proxyType = presentationData.strings.SocksProxySetup_ProxySocks5
-                }
-            } else {
-                proxyType = presentationData.strings.Settings_ProxyDisabled
-            }
-            items[.proxy]!.append(PeerInfoScreenDisclosureItem(id: 0, label: .text(proxyType), text: presentationData.strings.Settings_Proxy, icon: PresentationResourcesSettings.proxy, action: {
-                interaction.openSettings(.proxy)
-            }))
-        }
+        //隐藏代理添加入口
+//        if !settings.proxySettings.servers.isEmpty {
+//            let proxyType: String
+//            if settings.proxySettings.enabled, let activeServer = settings.proxySettings.activeServer {
+//                switch activeServer.connection {
+//                    case .mtp:
+//                        proxyType = presentationData.strings.SocksProxySetup_ProxyTelegram
+//                    case .socks5:
+//                        proxyType = presentationData.strings.SocksProxySetup_ProxySocks5
+//                }
+//            } else {
+//                proxyType = presentationData.strings.Settings_ProxyDisabled
+//            }
+//            items[.proxy]!.append(PeerInfoScreenDisclosureItem(id: 0, label: .text(proxyType), text: presentationData.strings.Settings_Proxy, icon: PresentationResourcesSettings.proxy, action: {
+//                interaction.openSettings(.proxy)
+//            }))
+//        }
     }
     
+    //二次修改
+//    储存信息
     items[.shortcuts]!.append(PeerInfoScreenDisclosureItem(id: 0, text: presentationData.strings.Settings_SavedMessages, icon: PresentationResourcesSettings.savedMessages, action: {
         interaction.openSettings(.savedMessages)
     }))
+    //最近通话
     items[.shortcuts]!.append(PeerInfoScreenDisclosureItem(id: 1, text: presentationData.strings.CallSettings_RecentCalls, icon: PresentationResourcesSettings.recentCalls, action: {
         interaction.openSettings(.recentCalls)
     }))
@@ -763,13 +775,16 @@ private func settingsItems(data: PeerInfoScreenData?, context: AccountContext, p
         devicesLabel = ""
     }
     
+    //我的设备
     items[.shortcuts]!.append(PeerInfoScreenDisclosureItem(id: 2, label: .text(devicesLabel), text: presentationData.strings.Settings_Devices, icon: PresentationResourcesSettings.devices, action: {
         interaction.openSettings(.devices)
     }))
+    //聊天分组
     items[.shortcuts]!.append(PeerInfoScreenDisclosureItem(id: 3, text: presentationData.strings.Settings_ChatFolders, icon: PresentationResourcesSettings.chatFolders, action: {
         interaction.openSettings(.chatFolders)
     }))
     
+    //通知与声音
     let notificationsWarning: Bool
     if let settings = data.globalSettings {
         notificationsWarning = shouldDisplayNotificationsPermissionWarning(status: settings.notificationAuthorizationStatus, suppressed:  settings.notificationWarningSuppressed)
@@ -779,20 +794,23 @@ private func settingsItems(data: PeerInfoScreenData?, context: AccountContext, p
     items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 0, label: notificationsWarning ? .badge("!", presentationData.theme.list.itemDestructiveColor) : .none, text: presentationData.strings.Settings_NotificationsAndSounds, icon: PresentationResourcesSettings.notifications, action: {
         interaction.openSettings(.notificationsAndSounds)
     }))
+    //隐私与安全
     items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 1, text: presentationData.strings.Settings_PrivacySettings, icon: PresentationResourcesSettings.security, action: {
         interaction.openSettings(.privacyAndSecurity)
     }))
+    //数据与流量
     items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 2, text: presentationData.strings.Settings_ChatSettings, icon: PresentationResourcesSettings.dataAndStorage, action: {
         interaction.openSettings(.dataAndStorage)
     }))
-    items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 3, text: presentationData.strings.Settings_Appearance, icon: PresentationResourcesSettings.appearance, action: {
-        interaction.openSettings(.appearance)
-    }))
+//    items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 3, text: presentationData.strings.Settings_Appearance, icon: PresentationResourcesSettings.appearance, action: {
+//        interaction.openSettings(.appearance)
+//    }))
     
-    let languageName = presentationData.strings.primaryComponent.localizedName
-    items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 4, label: .text(languageName.isEmpty ? presentationData.strings.Localization_LanguageName : languageName), text: presentationData.strings.Settings_AppLanguage, icon: PresentationResourcesSettings.language, action: {
-        interaction.openSettings(.language)
-    }))
+    //语言
+//    let languageName = presentationData.strings.primaryComponent.localizedName
+//    items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 4, label: .text(languageName.isEmpty ? presentationData.strings.Localization_LanguageName : languageName), text: presentationData.strings.Settings_AppLanguage, icon: PresentationResourcesSettings.language, action: {
+//        interaction.openSettings(.language)
+//    }))
     
     let stickersLabel: String
     if let settings = data.globalSettings {
@@ -800,29 +818,40 @@ private func settingsItems(data: PeerInfoScreenData?, context: AccountContext, p
     } else {
         stickersLabel = ""
     }
-    items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 5, label: .badge(stickersLabel, presentationData.theme.list.itemAccentColor), text: presentationData.strings.ChatSettings_Stickers, icon: PresentationResourcesSettings.stickers, action: {
-        interaction.openSettings(.stickers)
-    }))
+//    items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 5, label: .badge(stickersLabel, presentationData.theme.list.itemAccentColor), text: presentationData.strings.ChatSettings_Stickers, icon: PresentationResourcesSettings.stickers, action: {
+//        interaction.openSettings(.stickers)
+//    }))
     
     if let settings = data.globalSettings {
-        if settings.hasPassport {
-            items[.extra]!.append(PeerInfoScreenDisclosureItem(id: 0, text: presentationData.strings.Settings_Passport, icon: PresentationResourcesSettings.passport, action: {
-                interaction.openSettings(.passport)
-            }))
-        }
+//        if settings.hasPassport {
+//            items[.extra]!.append(PeerInfoScreenDisclosureItem(id: 0, text: presentationData.strings.Settings_Passport, icon: PresentationResourcesSettings.passport, action: {
+//                interaction.openSettings(.passport)
+//            }))
+//        }
         if settings.hasWatchApp {
-            items[.extra]!.append(PeerInfoScreenDisclosureItem(id: 1, text: presentationData.strings.Settings_AppleWatch, icon: PresentationResourcesSettings.watch, action: {
-                interaction.openSettings(.watch)
-            }))
+//            items[.extra]!.append(PeerInfoScreenDisclosureItem(id: 1, text: presentationData.strings.Settings_AppleWatch, icon: PresentationResourcesSettings.watch, action: {
+//                interaction.openSettings(.watch)
+//            }))
         }
+        
+        
     }
     
-    items[.support]!.append(PeerInfoScreenDisclosureItem(id: 0, text: presentationData.strings.Settings_Support, icon: PresentationResourcesSettings.support, action: {
-        interaction.openSettings(.support)
-    }))
-    items[.support]!.append(PeerInfoScreenDisclosureItem(id: 1, text: presentationData.strings.Settings_FAQ, icon: PresentationResourcesSettings.faq, action: {
-        interaction.openSettings(.faq)
-    }))
+//    items[.support]!.append(PeerInfoScreenDisclosureItem(id: 0, text: presentationData.strings.Settings_Support, icon: PresentationResourcesSettings.support, action: {
+//        interaction.openSettings(.support)
+//    }))
+//    items[.support]!.append(PeerInfoScreenDisclosureItem(id: 1, text: presentationData.strings.Settings_FAQ, icon: PresentationResourcesSettings.faq, action: {
+//        interaction.openSettings(.faq)
+//    }))
+    
+//    items[.support]!.append(PeerInfoScreenDisclosureItem(id: 2, text: "隐私政策", icon: PresentationResourcesSettings.support, action: {
+//        interaction.openSettings(.Privacy_Policy)
+//    }))
+//    items[.support]!.append(PeerInfoScreenDisclosureItem(id: 3, text: "关于我们", icon: PresentationResourcesSettings.faq, action: {
+//        interaction.openSettings(.about)
+//    }))
+    
+    
     
     var result: [(AnyHashable, [PeerInfoScreenItem])] = []
     for section in SettingsSection.allCases {
@@ -860,13 +889,14 @@ private func settingsEditingItems(data: PeerInfoScreenData?, state: PeerInfoStat
     let ItemAddAccountHelp = 6
     let ItemLogout = 7
     
-    items[.help]!.append(PeerInfoScreenCommentItem(id: ItemNameHelp, text: presentationData.strings.EditProfile_NameAndPhotoOrVideoHelp))
+//    items[.help]!.append(PeerInfoScreenCommentItem(id: ItemNameHelp, text: presentationData.strings.EditProfile_NameAndPhotoOrVideoHelp))
+    
     
     if let cachedData = data.cachedData as? CachedUserData {
         items[.bio]!.append(PeerInfoScreenMultilineInputItem(id: ItemBio, text: state.updatingBio ?? (cachedData.about ?? ""), placeholder: presentationData.strings.UserInfo_About_Placeholder, textUpdated: { updatedText in
             interaction.updateBio(updatedText)
         }, maxLength: 70))
-        items[.bio]!.append(PeerInfoScreenCommentItem(id: ItemBioHelp, text: presentationData.strings.Settings_About_Help))
+//        items[.bio]!.append(PeerInfoScreenCommentItem(id: ItemBioHelp, text: presentationData.strings.Settings_About_Help))
     }
     
     if let user = data.peer as? TelegramUser {
@@ -883,10 +913,10 @@ private func settingsEditingItems(data: PeerInfoScreenData?, state: PeerInfoStat
     }))
     
     if let settings = data.globalSettings, settings.accountsAndPeers.count + 1 < maximumNumberOfAccounts {
-        items[.account]!.append(PeerInfoScreenActionItem(id: ItemAddAccount, text: presentationData.strings.Settings_AddAnotherAccount, alignment: .center, action: {
-            interaction.openSettings(.addAccount)
-        }))
-        items[.account]!.append(PeerInfoScreenCommentItem(id: ItemAddAccountHelp, text: presentationData.strings.Settings_AddAnotherAccount_Help))
+//        items[.account]!.append(PeerInfoScreenActionItem(id: ItemAddAccount, text: presentationData.strings.Settings_AddAnotherAccount, alignment: .center, action: {
+//            interaction.openSettings(.addAccount)
+//        }))
+//        items[.account]!.append(PeerInfoScreenCommentItem(id: ItemAddAccountHelp, text: presentationData.strings.Settings_AddAnotherAccount_Help))
     }
     
     items[.logout]!.append(PeerInfoScreenActionItem(id: ItemLogout, text: presentationData.strings.Settings_Logout, color: .destructive, alignment: .center, action: {
@@ -906,6 +936,11 @@ private func infoItems(data: PeerInfoScreenData?, context: AccountContext, prese
     guard let data = data else {
         return []
     }
+    
+    #warning("暂时还没有修改 获取权限")
+//    let headerButtons = peerInfoHeaderButtons(peer: data.peer, cachedData: data.cachedData, isOpenedFromChat: self.isOpenedFromChat, videoCallsEnabled: self.videoCallsEnabled, isSecretChat: self.peerId.namespace == Namespaces.Peer.SecretChat, isContact: data?.isContact ?? false)
+    
+    
     
     enum Section: Int, CaseIterable {
         case groupLocation
@@ -1148,6 +1183,7 @@ private func editingItems(data: PeerInfoScreenData?, context: AccountContext, pr
         case peerSettings
         case peerActions
     }
+    
     
     var items: [Section: [PeerInfoScreenItem]] = [:]
     for section in Section.allCases {
@@ -1562,13 +1598,17 @@ private final class PeerInfoScreenNode: ViewControllerTracingNode, UIScrollViewD
         self.isSettings = isSettings
         self.isMediaOnly = context.account.peerId == peerId && !isSettings
         
+//        整个视图
         self.scrollNode = ASScrollNode()
         self.scrollNode.view.delaysContentTouches = false
         self.scrollNode.canCancelAllTouchesInViews = true
         
+        //顶部头
         self.headerNode = PeerInfoHeaderNode(context: context, avatarInitiallyExpanded: avatarInitiallyExpanded, isOpenedFromChat: isOpenedFromChat, isSettings: isSettings)
+        //
         self.paneContainerNode = PeerInfoPaneContainerNode(context: context, peerId: peerId)
         
+//        self.paneContainerNode.backgroundColor = UIColor.red
         super.init()
         
         self.paneContainerNode.parentController = controller
@@ -3375,6 +3415,7 @@ private final class PeerInfoScreenNode: ViewControllerTracingNode, UIScrollViewD
                 }
             }
         case .call:
+            //拨打电话
             self.requestCall(isVideo: false)
         case .videoCall:
             self.requestCall(isVideo: true)
@@ -5407,6 +5448,12 @@ private final class PeerInfoScreenNode: ViewControllerTracingNode, UIScrollViewD
                 self.controller?.push(themeSettingsController(context: self.context))
             case .language:
                 self.controller?.push(LocalizationListController(context: self.context))
+                //二次修改 添加隐私跟关于
+            case .Privacy_Policy:
+                self.controller?.push(WebController.init(url: URL.init(string: "https://www.baidu.com")!,presentationData:self.context.sharedContext.currentPresentationData.with { $0 }))
+            case .about:
+                self.controller?.push(WebController.init(url: URL.init(string: "https://www.baidu.com")!,presentationData:self.context.sharedContext.currentPresentationData.with { $0 }))
+                
             case .stickers:
                 if let settings = self.data?.globalSettings {
                     self.controller?.push(installedStickerPacksController(context: self.context, mode: .general, archivedPacks: settings.archivedStickerPacks, updatedPacks: { [weak self] packs in
@@ -5447,12 +5494,15 @@ private final class PeerInfoScreenNode: ViewControllerTracingNode, UIScrollViewD
                         self.controller?.push(logoutOptionsController(context: self.context, navigationController: navigationController, canAddAccounts: accounts.count + 1 < maximumNumberOfAccounts, phoneNumber: phoneNumber))
                     }
                 }
+            
         }
     }
     
     private func openFaq(anchor: String? = nil) {
         let controller = OverlayStatusController(theme: presentationData.theme, type: .loading(cancelled: nil))
         self.controller?.present(controller, in: .window(.root))
+       
+        
         let _ = (self.cachedFaq.get()
         |> take(1)
         |> deliverOnMainQueue).start(next: { [weak self, weak controller] resolvedUrl in
@@ -5469,6 +5519,7 @@ private final class PeerInfoScreenNode: ViewControllerTracingNode, UIScrollViewD
                 }, dismissInput: {}, contentContext: nil)
             }
         })
+         
     }
     
     fileprivate func switchToAccount(id: AccountRecordId) {
@@ -6545,6 +6596,8 @@ public final class PeerInfoScreenImpl: ViewController, PeerInfoScreen {
                 icon = UIImage(bundleImageName: "Chat List/Tabs/IconSettings")
             }
             
+            let icon_d: UIImage? = UIImage(bundleImageName: "Chat List/Tabs/IconSettings_d")?.withRenderingMode(UIImage.RenderingMode.alwaysOriginal)
+            
             let tabBarItem: Signal<(String, UIImage?, UIImage?, String?), NoError> = combineLatest(queue: .mainQueue(), self.context.sharedContext.presentationData, notificationsAuthorizationStatus.get(), notificationsWarningSuppressed.get(), accountTabBarAvatar, accountTabBarAvatarBadge)
             |> map { presentationData, notificationsAuthorizationStatus, notificationsWarningSuppressed, accountTabBarAvatar, accountTabBarAvatarBadge -> (String, UIImage?, UIImage?, String?) in
                 let notificationsWarning = shouldDisplayNotificationsPermissionWarning(status: notificationsAuthorizationStatus, suppressed:  notificationsWarningSuppressed)
@@ -6559,7 +6612,7 @@ public final class PeerInfoScreenImpl: ViewController, PeerInfoScreen {
                 if let strongSelf = self {
                     strongSelf.tabBarItem.title = title
                     strongSelf.tabBarItem.image = image
-                    strongSelf.tabBarItem.selectedImage = selectedImage
+                    strongSelf.tabBarItem.selectedImage = icon_d
                     strongSelf.tabBarItem.badgeValue = badgeValue
                 }
             })

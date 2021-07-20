@@ -55,11 +55,30 @@ private enum LanguageListEntry: Comparable, Identifiable {
     func item(presentationData: PresentationData, searchMode: Bool, openSearch: @escaping () -> Void, selectLocalization: @escaping (LocalizationInfo) -> Void, setItemWithRevealedOptions: @escaping (String?, String?) -> Void, removeItem: @escaping (String) -> Void) -> ListViewItem {
         switch self {
             case let .localization(_, info, type, selected, activity, revealed, editing):
-                return LocalizationListItem(presentationData: ItemListPresentationData(presentationData), id: info?.languageCode ?? "", title: info?.title ?? " ", subtitle: info?.localizedTitle ?? " ", checked: selected, activity: activity, loading: info == nil, editing: LocalizationListItemEditing(editable: !selected && !searchMode && !(info?.isOfficial ?? true), editing: editing, revealed: !selected && revealed, reorderable: false), sectionId: type == .official ? LanguageListSection.official.rawValue : LanguageListSection.unofficial.rawValue, alwaysPlain: searchMode, action: {
-                    if let info = info {
-                        selectLocalization(info)
-                    }
-                }, setItemWithRevealedOptions: setItemWithRevealedOptions, removeItem: removeItem)
+                let deffff = UserDefaults.standard.string(forKey: "LanguageCodeNN")
+                if deffff == "en", deffff == info?.languageCode {
+                    return LocalizationListItem(presentationData: ItemListPresentationData(presentationData)
+                                                    , id: info?.languageCode ?? "", title: info?.title ?? " ", subtitle: info?.localizedTitle ?? " ", checked: true, activity: activity, loading: info == nil, editing: LocalizationListItemEditing(editable: !selected && !searchMode && !(info?.isOfficial ?? true), editing: editing, revealed: !selected && revealed, reorderable: false), sectionId: type == .official ? LanguageListSection.official.rawValue : LanguageListSection.unofficial.rawValue, alwaysPlain: searchMode, action: {
+                        if let info = info {
+                            selectLocalization(info)
+                        }
+                    }, setItemWithRevealedOptions: setItemWithRevealedOptions, removeItem: removeItem)
+                }else if deffff == "zh-Hans", deffff == info?.languageCode {
+                    return LocalizationListItem(presentationData: ItemListPresentationData(presentationData)
+                                                    , id: info?.languageCode ?? "", title: info?.title ?? " ", subtitle: info?.localizedTitle ?? " ", checked: true, activity: activity, loading: info == nil, editing: LocalizationListItemEditing(editable: !selected && !searchMode && !(info?.isOfficial ?? true), editing: editing, revealed: !selected && revealed, reorderable: false), sectionId: type == .official ? LanguageListSection.official.rawValue : LanguageListSection.unofficial.rawValue, alwaysPlain: searchMode, action: {
+                        if let info = info {
+                            selectLocalization(info)
+                        }
+                    }, setItemWithRevealedOptions: setItemWithRevealedOptions, removeItem: removeItem)
+                }else{
+                    return LocalizationListItem(presentationData: ItemListPresentationData(presentationData)
+                                                    , id: info?.languageCode ?? "", title: info?.title ?? " ", subtitle: info?.localizedTitle ?? " ", checked: false, activity: activity, loading: info == nil, editing: LocalizationListItemEditing(editable: !selected && !searchMode && !(info?.isOfficial ?? true), editing: editing, revealed: !selected && revealed, reorderable: false), sectionId: type == .official ? LanguageListSection.official.rawValue : LanguageListSection.unofficial.rawValue, alwaysPlain: searchMode, action: {
+                        if let info = info {
+                            selectLocalization(info)
+                        }
+                    }, setItemWithRevealedOptions: setItemWithRevealedOptions, removeItem: removeItem)
+                }
+                
         }
     }
 }
@@ -154,6 +173,7 @@ private final class LocalizationListSearchContainerNode: SearchDisplayController
                     entries.append(.localization(index: entries.count, info: item, type: .official, selected: presentationData.strings.primaryComponent.languageCode == item.languageCode, activity: applyingCode == item.languageCode, revealed: false, editing: false))
                 }
             }
+            
             let previousEntriesAndPresentationData = previousEntriesHolder.swap((entries, presentationData.theme, presentationData.strings))
             let transition = preparedLanguageListSearchContainerTransition(presentationData: presentationData, from: previousEntriesAndPresentationData?.0 ?? [], to: entries, selectLocalization: selectLocalization, isSearching: items != nil, forceUpdate: previousEntriesAndPresentationData?.1 !== presentationData.theme || previousEntriesAndPresentationData?.2 !== presentationData.strings)
             strongSelf.enqueueTransition(transition)
@@ -380,7 +400,24 @@ final class LocalizationListControllerNode: ViewControllerTracingNode {
             }
             var existingIds = Set<String>()
             
-            let localizationListState = (view.views[preferencesKey] as? PreferencesView)?.values[PreferencesKeys.localizationListState] as? LocalizationListState
+            var localizationListState = (view.views[preferencesKey] as? PreferencesView)?.values[PreferencesKeys.localizationListState] as? LocalizationListState
+         
+            #warning("指定语言 英文+中文")
+            localizationListState?.availableOfficialLocalizations.removeAll()
+            localizationListState?.availableSavedLocalizations.removeAll()
+            
+            #warning("添加中文")
+            let zhlinfo = LocalizationInfo(languageCode: "zh-Hans", baseLanguageCode: nil, customPluralizationCode: "zh-Hans", title: "中文简体", localizedTitle: "中文简体", isOfficial: true, totalStringCount: 4582, translatedStringCount: 4582, platformUrl: "https://translations.telegram.org/zh-Hans/")
+            
+            localizationListState?.availableOfficialLocalizations.append(zhlinfo)
+            #warning("添加英文")
+            let enlinfo = LocalizationInfo(languageCode: "en", baseLanguageCode: nil, customPluralizationCode: "en", title: "English", localizedTitle: "English", isOfficial: true, totalStringCount: 4582, translatedStringCount: 4582, platformUrl: "https://translations.telegram.org/en/")
+            
+            localizationListState?.availableOfficialLocalizations.append(enlinfo)
+            
+            
+            
+            
             if let localizationListState = localizationListState, !localizationListState.availableOfficialLocalizations.isEmpty {
                 strongSelf.currentListState = localizationListState
                 
@@ -395,8 +432,9 @@ final class LocalizationListControllerNode: ViewControllerTracingNode {
                         if existingIds.contains(info.languageCode) {
                             continue
                         }
-                        existingIds.insert(info.languageCode)
-                        entries.append(.localization(index: entries.count, info: info, type: .unofficial, selected: info.languageCode == activeLanguageCode, activity: applyingCode == info.languageCode, revealed: revealedCode == info.languageCode, editing: isEditing))
+                        #warning("非官方语言 不添加")
+//                        existingIds.insert(info.languageCode)
+//                        entries.append(.localization(index: entries.count, info: info, type: .unofficial, selected: info.languageCode == activeLanguageCode, activity: applyingCode == info.languageCode, revealed: revealedCode == info.languageCode, editing: isEditing))
                     }
                 }
                 for info in localizationListState.availableOfficialLocalizations {
@@ -411,6 +449,9 @@ final class LocalizationListControllerNode: ViewControllerTracingNode {
                     entries.append(.localization(index: entries.count, info: nil, type: .official, selected: false, activity: false, revealed: false, editing: false))
                 }
             }
+          
+            
+            
             
             let previousState = previousState.swap(localizationListState)
             
@@ -496,6 +537,24 @@ final class LocalizationListControllerNode: ViewControllerTracingNode {
     }
     
     private func selectLocalization(_ info: LocalizationInfo) -> Void {
+        
+        if info.languageCode == "en" {
+            UserDefaults.standard.setValue("en", forKey: "LanguageCodeNN")
+            UserDefaults.standard.synchronize()
+        }else{
+            UserDefaults.standard.setValue("zh-Hans", forKey: "LanguageCodeNN")
+            UserDefaults.standard.synchronize()
+        }
+        
+        self.context.sharedContext.updateDDD()
+        return
+//       let presentationData_new =  self.presentationData.withUpdated_String(strings: defaultPresentationStrings_en)
+//
+//        self.presentationDataValue.updatedPresentationData(accountManager: strongSelf.context.sharedContext, applicationInForeground: self.applicationBindings.applicationInForeground, systemUserInterfaceStyle: mainWindow?.systemUserInterfaceStyle ?? .single(.light))
+        
+//        self.presentationDataValue.set(.single(presentationData_new))
+        
+        
         let applyImpl: () -> Void = { [weak self] in
             guard let strongSelf = self else {
                 return
@@ -505,6 +564,7 @@ final class LocalizationListControllerNode: ViewControllerTracingNode {
                 |> deliverOnMainQueue).start(completed: {
                     self?.applyingCode.set(.single(nil))
                 }))
+            
         }
         if info.isOfficial {
             applyImpl()

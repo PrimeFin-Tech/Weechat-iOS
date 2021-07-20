@@ -284,10 +284,11 @@ public final class CallController: ViewController {
                 } |> deliverOnMainQueue).start(next: { [weak self] callsTabTip in
                     if let strongSelf = self {
                         if callsTabTip == 2 {
-                            Queue.mainQueue().after(1.0) {
-                                let controller = callSuggestTabController(sharedContext: strongSelf.sharedContext)
-                                strongSelf.present(controller, in: .window(.root))
-                            }
+                            #warning("calls tab 提示框隐藏")
+//                            Queue.mainQueue().after(1.0) {
+//                                let controller = callSuggestTabController(sharedContext: strongSelf.sharedContext)
+//                                strongSelf.present(controller, in: .window(.root))
+//                            }
                         }
                         if callsTabTip < 3 {
                             let _ = ApplicationSpecificNotice.incrementCallsTabTips(accountManager: strongSelf.sharedContext.accountManager).start()

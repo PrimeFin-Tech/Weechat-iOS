@@ -58,6 +58,7 @@ public final class SharedAccountContextImpl: SharedAccountContext {
     public let basePath: String
     public let accountManager: AccountManager
     public let appLockContext: AppLockContext
+    public let initialPresentationDataAndSettings: InitialPresentationDataAndSettings
     
     private let navigateToChatImpl: (AccountRecordId, PeerId, MessageId?) -> Void
     
@@ -118,6 +119,7 @@ public final class SharedAccountContextImpl: SharedAccountContext {
     
     var switchingData: (settingsController: (SettingsController & ViewController)?, chatListController: ChatListController?, chatListBadge: String?) = (nil, nil, nil)
     
+    
     private let _currentPresentationData: Atomic<PresentationData>
     public var currentPresentationData: Atomic<PresentationData> {
         return self._currentPresentationData
@@ -177,7 +179,7 @@ public final class SharedAccountContextImpl: SharedAccountContext {
         self.accountManager.mediaBox.fetchCachedResourceRepresentation = { (resource, representation) -> Signal<CachedMediaResourceRepresentationResult, NoError> in
             return fetchCachedSharedResourceRepresentation(accountManager: accountManager, resource: resource, representation: representation)
         }
-        
+        self.initialPresentationDataAndSettings = initialPresentationDataAndSettings
         self.apsNotificationToken = apsNotificationToken
         self.voipNotificationToken = voipNotificationToken
                 
@@ -1396,6 +1398,15 @@ public final class SharedAccountContextImpl: SharedAccountContext {
     
     public func makePrivacyAndSecurityController(context: AccountContext) -> ViewController {
         return SettingsUI.makePrivacyAndSecurityController(context: context)
+    }
+    
+    
+    public func updateDDD(){
+        let presentationData: Signal<PresentationData, NoError> = .single(self.initialPresentationDataAndSettings.presentationData)
+        |> then(
+            updatedPresentationData(accountManager: self.accountManager, applicationInForeground: self.applicationBindings.applicationInForeground, systemUserInterfaceStyle: mainWindow?.systemUserInterfaceStyle ?? .single(.light))
+        )
+        self._presentationData.set(presentationData)
     }
 }
 

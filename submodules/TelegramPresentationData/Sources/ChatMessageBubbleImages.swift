@@ -369,6 +369,7 @@ public enum MessageBubbleActionButtonPosition {
 }
 
 public func messageBubbleActionButtonImage(color: UIColor, strokeColor: UIColor, position: MessageBubbleActionButtonPosition, bubbleCorners: PresentationChatBubbleCorners) -> UIImage {
+    
     let largeRadius: CGFloat = bubbleCorners.mainRadius
     let smallRadius: CGFloat = (bubbleCorners.mergeBubbleCorners && largeRadius >= 10.0) ? bubbleCorners.auxiliaryRadius : bubbleCorners.mainRadius
     let size: CGSize
@@ -392,6 +393,7 @@ public func messageBubbleActionButtonImage(color: UIColor, strokeColor: UIColor,
         strokeColor.getRed(nil, green: nil, blue: nil, alpha: &strokeAlpha)
         if !strokeAlpha.isZero {
             effectiveStrokeColor = strokeColor
+            
         }
         context.setFillColor(color.cgColor)
         let lineWidth: CGFloat = 1.0

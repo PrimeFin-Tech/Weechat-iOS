@@ -173,7 +173,16 @@ public extension ContainedViewLayoutTransition {
         } else {
             switch self {
             case .immediate:
-                node.frame = frame
+                if frame.size.width < 0.0 {
+                    node.frame.origin.x = frame.origin.x
+                    node.frame.origin.y = frame.origin.y
+                    node.frame.size.width = -frame.size.width
+                    node.frame.size.height = frame.height
+                }else{
+                    node.frame = frame
+                }
+                
+                
                 if let completion = completion {
                     completion(true)
                 }

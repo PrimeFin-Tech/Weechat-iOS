@@ -65,6 +65,8 @@ class PeersNearbyHeaderItemNode: ListViewItemNode {
     
     private var item: PeersNearbyHeaderItem?
     
+    private var iconImageView: UIImageView
+    
     init() {
         self.titleNode = TextNode()
         self.titleNode.isUserInteractionEnabled = false
@@ -73,14 +75,20 @@ class PeersNearbyHeaderItemNode: ListViewItemNode {
         
         self.animationNode = AnimatedStickerNode()
         if let path = getAppBundle().path(forResource: "Compass", ofType: "tgs") {
-            self.animationNode.setup(source: AnimatedStickerNodeLocalFileSource(path: path), width: 192, height: 192, playbackMode: .once, mode: .direct(cachePathPrefix: nil))
-            self.animationNode.visibility = true
+//            self.animationNode.setup(source: AnimatedStickerNodeLocalFileSource(path: path), width: 192, height: 192, playbackMode: .once, mode: .direct(cachePathPrefix: nil))
+//            self.animationNode.visibility = true
         }
+        
+        self.iconImageView = UIImageView(image: UIImage(named: "nearbyIcon2"))
+        
         
         super.init(layerBacked: false, dynamicBounce: false)
         
         self.addSubnode(self.titleNode)
         self.addSubnode(self.animationNode)
+        self.view.addSubview(self.iconImageView)
+        
+        self.backgroundColor = UIColor.white
     }
     
     func asyncLayout() -> (_ item: PeersNearbyHeaderItem, _ params: ListViewItemLayoutParams, _ neighbors: ItemListNeighbors) -> (ListViewItemNodeLayout, () -> Void) {
@@ -106,6 +114,8 @@ class PeersNearbyHeaderItemNode: ListViewItemNode {
                     let iconSize = CGSize(width: 96.0, height: 96.0)
                     strongSelf.animationNode.frame = CGRect(origin: CGPoint(x: floor((layout.size.width - iconSize.width) / 2.0), y: -10.0), size: iconSize)
                     strongSelf.animationNode.updateLayout(size: iconSize)
+                    
+                    strongSelf.iconImageView.frame = CGRect(origin: CGPoint(x: floor((layout.size.width - iconSize.width) / 2.0), y: -10.0), size: iconSize)
                     
                     let _ = titleApply()
                     strongSelf.titleNode.frame = CGRect(origin: CGPoint(x: floor((layout.size.width - titleLayout.size.width) / 2.0), y: topInset + 8.0), size: titleLayout.size)

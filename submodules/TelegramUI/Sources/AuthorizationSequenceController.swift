@@ -23,6 +23,49 @@ private enum InnerState: Equatable {
     case authorized
 }
 
+private enum ProxyServerSettingsControllerMode_T {
+    case socks5
+    case mtp
+}
+private struct ProxyServerSettingsControllerState_T: Equatable {
+    var mode: ProxyServerSettingsControllerMode_T
+    var host: String
+    var port: String
+    var username: String
+    var password: String
+    var secret: String
+    
+    var isComplete: Bool {
+        if self.host.isEmpty || self.port.isEmpty || Int(self.port) == nil {
+            return false
+        }
+        //二次修改
+        switch self.mode {
+            case .socks5:
+                break
+            case .mtp:
+                let secretIsValid = MTProxySecret.parse(self.secret) != nil
+                if !secretIsValid {
+                    return false
+                }
+        }
+        return true
+    }
+}
+private func proxyServerSettings_T(with state: ProxyServerSettingsControllerState_T) -> ProxyServerSettings? {
+    if state.isComplete, let port = Int32(state.port) {
+        switch state.mode {
+            case .socks5:
+                return ProxyServerSettings(host: state.host, port: port, connection: .socks5(username: state.username.isEmpty ? nil : state.username, password: state.password.isEmpty ? nil : state.password))
+            case .mtp:
+                let parsedSecret = MTProxySecret.parse(state.secret)
+                if let parsedSecret = parsedSecret {
+                    return ProxyServerSettings(host: state.host, port: port, connection: .mtp(secret: parsedSecret.serialize()))
+                }
+        }
+    }
+    return nil
+}
 public final class AuthorizationSequenceController: NavigationController, MFMailComposeViewControllerDelegate {
     static func navigationBarTheme(_ theme: PresentationTheme) -> NavigationBarTheme {
         return NavigationBarTheme(buttonColor: theme.intro.accentTextColor, disabledButtonColor: theme.intro.disabledTextColor, primaryTextColor: theme.intro.primaryTextColor, backgroundColor: .clear, separatorColor: .clear, badgeBackgroundColor: theme.rootController.navigationBar.badgeBackgroundColor, badgeStrokeColor: theme.rootController.navigationBar.badgeStrokeColor, badgeTextColor: theme.rootController.navigationBar.badgeTextColor)
@@ -47,6 +90,8 @@ public final class AuthorizationSequenceController: NavigationController, MFMail
         return self._ready
     }
     private var didSetReady = false
+    
+    private var httpResult : NSDictionary?
     
     public init(sharedContext: SharedAccountContext, account: UnauthorizedAccount, otherAccountPhoneNumbers: ((String, AccountRecordId, Bool)?, [(String, AccountRecordId, Bool)]), presentationData: PresentationData, openUrl: @escaping (String) -> Void, apiId: Int32, apiHash: String, authorizationCompleted: @escaping () -> Void) {
         self.sharedContext = sharedContext
@@ -82,8 +127,232 @@ public final class AuthorizationSequenceController: NavigationController, MFMail
         |> deliverOnMainQueue).start(next: { [weak self] state in
             self?.updateState(state: state)
         })
+        #warning("开始自动添加代理服务器")
+        // sss
+        var mainRect:CGRect = UIScreen.main.bounds;
+        let activity = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.whiteLarge)
+        activity.hidesWhenStopped = true
+        
+        let viee = UIView(frame: CGRect(x: (mainRect.width-100)/2.0, y: (mainRect.height-200)/2.0, width: 100, height: 100))
+        viee.backgroundColor = .gray
+        viee.layer.cornerRadius = 5.0
+        
+        viee.addSubview(activity)
+        activity.center = CGPoint(x: 50, y: 50)
+        activity.startAnimating()
+        
+        self.view.addSubview(viee)
+        
+        
+        let urls: URL = URL(string: "http://proxy.test.fomitec.com/api/proxy/SOCKS5")!
+        let session = URLSession.shared
+        var request = URLRequest(url: urls)
+
+         request.timeoutInterval = 10
+        request.httpMethod = "GET"
+        
+        let task = session.dataTask(with: request, completionHandler: {
+            (data, response, error) in
+            DispatchQueue.main.async {
+
+                activity.stopAnimating()
+                viee.removeFromSuperview()
+                /*
+                agreementType = SOCKS5;
+                credentials =     {
+                    password = hk022021;
+                    userName = hk02;
+                };
+                port = 56847;
+                server = "112.120.127.194";
+                
+                */
+                
+                guard data != nil && error == nil else {
+
+                    print(error as Any)
+
+                    self.defaultAutoConnectProxy()
+                    return
+                }
+
+                do {
+
+                    let jsonResult : NSDictionary? = try JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.mutableContainers) as? NSDictionary
+
+                    print("jsonResult_sss\(jsonResult!)")
+                    self.httpResult = jsonResult
+                    
+                    self.defaultAutoConnectProxy()
+
+                } catch let error as NSError {
+
+                    print("JSON ERROR 2 sss     " + error.localizedDescription)
+                    self.defaultAutoConnectProxy()
+                }
+
+            }
+
+        })
+
+        task.resume()
+        
+        
+        //上面二次修改
     }
     
+    func defaultAutoConnectProxy(){
+        
+        
+        let accountManager: AccountManager = self.sharedContext.accountManager
+        
+        let proxySettings = Promise<ProxySettings>()
+        proxySettings.set(accountManager.sharedData(keys: [SharedDataKeys.proxySettings])
+        |> map { sharedData -> ProxySettings in
+            if let value = sharedData.entries[SharedDataKeys.proxySettings] as? ProxySettings {
+                return value
+            } else {
+                return ProxySettings.defaultSettings
+            }
+        })
+        
+        var state = ProxyServerSettingsControllerState_T(mode: .socks5, host: "", port:"", username: "", password: "", secret: "")
+        if self.httpResult != nil {
+           
+            let serverHttp = self.httpResult?["server"] as? String
+            let portHttp = self.httpResult?["port"] as? Int32
+            
+            var passwordHttp: String? = String()
+            var usernameHttp: String? = String()
+            
+            let credentials_Any = self.httpResult?["credentials"]
+            
+            if credentials_Any is String {
+                let credentials_jsonString: String = self.httpResult?["credentials"] as! String
+                let credentials: NSDictionary
+                if !credentials_jsonString.isEmpty {
+                    let jsonData:Data = credentials_jsonString.data(using: .utf8)!
+
+                    let dict = try? JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers)
+                   if dict != nil {
+                    credentials = dict as! NSDictionary
+                    passwordHttp = credentials["password"] as! String
+                    usernameHttp = credentials["userName"] as! String
+                   }
+                }
+                
+                if let _ = serverHttp, let _ = portHttp,let _ = passwordHttp,let _ = usernameHttp {
+                    state = ProxyServerSettingsControllerState_T(mode: .socks5, host: serverHttp!, port: portHttp.flatMap { "\($0)" }!, username:  usernameHttp!, password: passwordHttp!, secret: "")
+                }
+            }else {
+                
+                let credentials = self.httpResult!["credentials"] as? [AnyHashable : Any]
+                let passwordHttp = credentials?["password"] as? String
+                let usernameHttp = credentials?["userName"] as? String
+                
+                if let _ = serverHttp, let _ = portHttp,let _ = passwordHttp,let _ = usernameHttp {
+                    state = ProxyServerSettingsControllerState_T(mode: .socks5, host: serverHttp!, port: portHttp.flatMap { "\($0)" }!, username:  usernameHttp!, password: passwordHttp!, secret: "")
+                }
+            }
+            
+            
+
+            
+           
+            
+        }else{
+            //接口请求失败后 设置死
+//            let dic = [
+//                "agreementType": "SOCKS5",
+//                "server": "112.120.127.194",
+//                "port": NSNumber(value: 56847).stringValue,
+//                "credentials": [
+//                "password": "hk022021",
+//                "userName": "hk02"
+//                ]
+//            ]
+            
+            let serverHttp = "112.120.127.194"
+            let portHttp = "56847"
+            let passwordHttp: String? = "hk022021"
+            let usernameHttp: String? = "hk02"
+            state = ProxyServerSettingsControllerState_T(mode: .socks5, host: serverHttp, port: portHttp, username:  usernameHttp!, password: passwordHttp!, secret: "")
+        }
+        
+        //二次修改
+        print("proxySettings 数据")
+        let pppps = (proxySettings.get()
+            |> take(1)
+            |> deliverOnMainQueue).start(next: { settings in
+              print(settings)
+                let serversArr = settings.servers
+                
+                var isContain:Bool = false
+                for serv in serversArr {
+                    let portN = state.port
+                    let portO = String(serv.port)
+                    let modeN = state.mode
+                    
+                    var modeO: ProxyServerSettingsControllerMode_T
+                    switch serv.connection {
+                        case let .mtp(secret):
+                            modeO = ProxyServerSettingsControllerMode_T.mtp
+                        case let .socks5(username, password):
+                            modeO = ProxyServerSettingsControllerMode_T.socks5
+                    }
+                    
+                    print(modeO)
+                    print(modeN)
+                    
+                    if serv.host == state.host && portN == portO && modeN == modeO {
+                        print("相同的数据")
+                        isContain = true
+                    }
+                }
+                if isContain == false{
+                    print("可以添加")
+                    if let proxyServerSettings = proxyServerSettings_T(with: state) {
+                        let _ = (updateProxySettingsInteractively(accountManager: accountManager, { settings in
+                            var settings = settings
+                            
+                            settings.servers.append(proxyServerSettings)
+                            if settings.servers.count == 1 {
+                                settings.activeServer = proxyServerSettings
+                            }
+                            settings.enabled = true
+                            settings.useForCalls = true
+                            return settings
+                        }) |> deliverOnMainQueue).start(completed: {
+                            print("添加完成")
+                        })
+                    }
+                }else{
+                    print("已经添加")
+                    
+                    
+                }
+            })
+        
+        //进入页面直接连接 sss
+//        let accountManager: AccountManager = self.sharedContext.accountManager
+//        var currentSettings: ProxySettings?
+//
+//        let _ = updateProxySettingsInteractively(accountManager: accountManager, { current in
+//            currentSettings = current
+//            var current = current
+//            current.enabled = true
+//            return current
+//        }).start()
+//
+//        if let proxyD = currentSettings {
+//            if proxyD.servers.count == 0 {
+//                //添加代理服务器
+//                print("添加代理服务器")
+//            }else{
+//                print("已经添加了代理服务器")
+//            }
+//        }
+    }
     required public init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -96,6 +365,7 @@ public final class AuthorizationSequenceController: NavigationController, MFMail
     override public func loadView() {
         super.loadView()
         self.view.backgroundColor = self.presentationData.theme.list.plainBackgroundColor
+        
     }
     
     private func splashController() -> AuthorizationSequenceSplashController {
@@ -164,6 +434,7 @@ public final class AuthorizationSequenceController: NavigationController, MFMail
                 }
                 strongSelf.account = updatedAccount
             }
+            //登录按钮点击事件
             controller.loginWithNumber = { [weak self, weak controller] number, syncContacts in
                 if let strongSelf = self {
                     controller?.inProgress = true
@@ -240,14 +511,20 @@ public final class AuthorizationSequenceController: NavigationController, MFMail
                                         strongSelf.presentEmailComposeController(address: "login@stel.com", subject: strongSelf.presentationData.strings.Login_PhoneGenericEmailSubject(formattedNumber).0, body: strongSelf.presentationData.strings.Login_PhoneGenericEmailBody(formattedNumber, errorString, appVersion, systemVersion, locale, mnc).0, from: controller)
                                     }))
                                 case .timeout:
+                                    //超时 使用代理连接
+                                    
                                     text = strongSelf.presentationData.strings.Login_NetworkError
-                                    actions.append(TextAlertAction(type: .defaultAction, title: strongSelf.presentationData.strings.Common_OK, action: {}))
+                                     actions.append(TextAlertAction(type: .defaultAction, title: strongSelf.presentationData.strings.Common_OK, action: {}))
                                     actions.append(TextAlertAction(type: .genericAction, title: strongSelf.presentationData.strings.ChatSettings_ConnectionType_UseProxy, action: { [weak controller] in
                                         guard let strongSelf = self, let controller = controller else {
                                             return
                                         }
-                                        controller.present(proxySettingsController(accountManager: strongSelf.sharedContext.accountManager, postbox: strongSelf.account.postbox, network: strongSelf.account.network, mode: .modal, presentationData: strongSelf.sharedContext.currentPresentationData.with { $0 }, updatedPresentationData: strongSelf.sharedContext.presentationData), in: .window(.root), with: ViewControllerPresentationArguments(presentationAnimation: .modalSheet))
+                                       controller.present(proxySettingsController(accountManager: strongSelf.sharedContext.accountManager, postbox: strongSelf.account.postbox, network: strongSelf.account.network, mode: .modal, presentationData: strongSelf.sharedContext.currentPresentationData.with { $0 }, updatedPresentationData: strongSelf.sharedContext.presentationData), in: .window(.root), with: ViewControllerPresentationArguments(presentationAnimation: .modalSheet))
                                     }))
+ 
+                                    
+                                   
+                                   
                             }
                             controller.present(standardTextAlertController(theme: AlertControllerTheme(presentationData: strongSelf.presentationData), title: nil, text: text, actions: actions), in: .window(.root))
                         }

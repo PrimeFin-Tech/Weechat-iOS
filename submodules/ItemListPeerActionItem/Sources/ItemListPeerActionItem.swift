@@ -29,6 +29,7 @@ public class ItemListPeerActionItem: ListViewItem, ItemListItem {
     public let sectionId: ItemListSectionId
     let action: (() -> Void)?
     
+    
     public init(presentationData: ItemListPresentationData, icon: UIImage?, title: String, alwaysPlain: Bool = false, hasSeparator: Bool = true, sectionId: ItemListSectionId, height: ItemListPeerActionItemHeight = .peerList, color: ItemListPeerActionItemColor = .accent, editing: Bool, action: (() -> Void)?) {
         self.presentationData = presentationData
         self.icon = icon
@@ -112,6 +113,8 @@ class ItemListPeerActionItemNode: ListViewItemNode {
     
     private var item: ItemListPeerActionItem?
     
+    private var switchNote: SwitchNode
+    
     init() {
         self.backgroundNode = ASDisplayNode()
         self.backgroundNode.isLayerBacked = true
@@ -137,14 +140,24 @@ class ItemListPeerActionItemNode: ListViewItemNode {
         self.highlightedBackgroundNode = ASDisplayNode()
         self.highlightedBackgroundNode.isLayerBacked = true
         
+        
+        self.switchNote = SwitchNode()
+//        self.switchNote.frameColor = UIColor.red
+        self.switchNote.contentColor = UIColor.red
+//        self.switchNote.handleColor = UIColor.white
+        
+        
         self.activateArea = AccessibilityAreaNode()
+        
+      
         
         super.init(layerBacked: false, dynamicBounce: false)
         
         self.addSubnode(self.iconNode)
         self.addSubnode(self.titleNode)
-        
+        self.addSubnode(self.switchNote)
         self.addSubnode(self.activateArea)
+        
     }
     
     func asyncLayout() -> (_ item: ItemListPeerActionItem, _ params: ListViewItemLayoutParams, _ neighbors: ItemListNeighbors) -> (ListViewItemNodeLayout, (Bool) -> Void) {
@@ -271,6 +284,21 @@ class ItemListPeerActionItemNode: ListViewItemNode {
                     transition.updateFrame(node: strongSelf.titleNode, frame: CGRect(origin: CGPoint(x: leftInset + editingOffset, y: verticalInset + verticalOffset), size: titleLayout.size))
                     
                     strongSelf.highlightedBackgroundNode.frame = CGRect(origin: CGPoint(x: 0.0, y: -UIScreenPixel), size: CGSize(width: params.width, height: layout.contentSize.height + UIScreenPixel + UIScreenPixel))
+                    strongSelf.switchNote.isHidden = true
+                    if let iccon = item.icon{
+                        if iccon == UIImage(named: "nearbyIcon_3") {
+                           
+                            strongSelf.switchNote.isHidden = false
+                            strongSelf.switchNote.isOn = false
+                        }else if iccon == UIImage(named: "nearbyIcon_3_b"){
+                           
+                            strongSelf.switchNote.isHidden = false
+                            strongSelf.switchNote.isOn = true
+                        }
+                    }
+                    strongSelf.switchNote.frame = CGRect(x: layout.size.width-70, y: verticalInset + verticalOffset - 5, width: 70, height: 50)
+                    
+                    
                 }
             })
         }

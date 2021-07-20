@@ -37,7 +37,7 @@ final class AuthorizationSequencePhoneEntryController: ViewController {
                 let item = UIBarButtonItem(customDisplayNode: ProgressNavigationButtonNode(color: self.presentationData.theme.rootController.navigationBar.accentTextColor))
                 self.navigationItem.rightBarButtonItem = item
             } else {
-                self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.Common_Next, style: .done, target: self, action: #selector(self.nextPressed))
+                
             }
             self.controllerNode.inProgress = self.inProgress
         }
@@ -76,7 +76,6 @@ final class AuthorizationSequencePhoneEntryController: ViewController {
         if !otherAccountPhoneNumbers.1.isEmpty {
             self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: presentationData.strings.Common_Cancel, style: .plain, target: self, action: #selector(self.cancelPressed))
         }
-        self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: presentationData.strings.Common_Next, style: .done, target: self, action: #selector(self.nextPressed))
     }
     
     required init(coder aDecoder: NSCoder) {
@@ -97,7 +96,7 @@ final class AuthorizationSequencePhoneEntryController: ViewController {
             self.controllerNode.codeAndNumber = (countryCode, countryName, number)
         }
     }
-    
+  
     override public func loadDisplayNode() {
         self.displayNode = AuthorizationSequencePhoneEntryControllerNode(sharedContext: self.sharedContext, account: self.account, strings: self.presentationData.strings, theme: self.presentationData.theme, debugAction: { [weak self] in
             guard let strongSelf = self else {
@@ -121,6 +120,9 @@ final class AuthorizationSequencePhoneEntryController: ViewController {
         
         self.controllerNode.view.disableAutomaticKeyboardHandling = [.forward, .backward]
         
+        self.controllerNode.loginButtonPress = { [weak self] in
+            self?.nextPressed()
+        }
         self.controllerNode.selectCountryCode = { [weak self] in
             if let strongSelf = self {
                 let controller = AuthorizationSequenceCountrySelectionController(strings: strongSelf.presentationData.strings, theme: strongSelf.presentationData.theme)
@@ -153,6 +155,10 @@ final class AuthorizationSequencePhoneEntryController: ViewController {
         self.controllerNode.activateInput()
     }
     
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.controllerNode.resignInput()
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
@@ -166,6 +172,7 @@ final class AuthorizationSequencePhoneEntryController: ViewController {
     }
     
     @objc func nextPressed() {
+        self.controllerNode.resignInput()
         let (_, _, number) = self.controllerNode.codeAndNumber
         if !number.isEmpty {
             let logInNumber = formatPhoneNumber(self.controllerNode.currentNumber)
@@ -185,6 +192,7 @@ final class AuthorizationSequencePhoneEntryController: ViewController {
                     }))
                 }
                 actions.append(TextAlertAction(type: .defaultAction, title: self.presentationData.strings.Common_OK, action: {}))
+                //这个帐户已经在这个应用程序登录 sss
                 self.present(standardTextAlertController(theme: AlertControllerTheme(presentationData: self.presentationData), title: nil, text: self.presentationData.strings.Login_PhoneNumberAlreadyAuthorized, actions: actions), in: .window(.root))
             } else {
                 self.loginWithNumber?(self.controllerNode.currentNumber, self.controllerNode.syncContacts)

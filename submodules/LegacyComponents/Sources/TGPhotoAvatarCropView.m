@@ -183,7 +183,11 @@ const CGFloat TGPhotoAvatarCropViewCurtainMargin = 200;
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGContextSetFillColorWithColor(context, [TGPhotoEditorInterfaceAssets cropTransparentOverlayColor].CGColor);
     
-    UIBezierPath *path = [UIBezierPath bezierPathWithOvalInRect:CGRectMake(0, 0, diameter, diameter)];
+    //修改头像 选择相册图片 可编辑的遮罩层 改成巨型
+//    UIBezierPath *path = [UIBezierPath bezierPathWithOvalInRect:CGRectMake(0, 0, diameter, diameter)];
+    
+    UIBezierPath *path = [UIBezierPath bezierPathWithRect:CGRectMake(0, 0, diameter, diameter)];
+    
     [path appendPath:[UIBezierPath bezierPathWithRect:CGRectMake(0, 0, diameter, diameter)]];
     path.usesEvenOddFillRule = true;
     [path fill];

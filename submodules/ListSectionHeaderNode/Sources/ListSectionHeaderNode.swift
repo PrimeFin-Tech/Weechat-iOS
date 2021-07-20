@@ -99,8 +99,8 @@ public final class ListSectionHeaderNode: ASDisplayNode {
             self.theme = theme
             
             self.label.attributedText = NSAttributedString(string: self.title ?? "", font: titleFont, textColor: self.theme.chatList.sectionHeaderTextColor)
-            
             self.backgroundColor = theme.chatList.sectionHeaderFillColor
+            
             if let action = self.action {
                 self.actionButtonLabel?.attributedText = NSAttributedString(string: action, font: actionFont, textColor: self.theme.chatList.sectionHeaderTextColor)
             }

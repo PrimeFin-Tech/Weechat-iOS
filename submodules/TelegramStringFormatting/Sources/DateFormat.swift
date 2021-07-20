@@ -16,14 +16,14 @@ public func stringForShortTimestamp(hours: Int32, minutes: Int32, dateTimeFormat
         
         let periodString: String
         if hours >= 12 {
-            periodString = "PM"
+            periodString = "下午"
         } else {
-            periodString = "AM"
+            periodString = "上午"
         }
         if minutes >= 10 {
-            return "\(hourString):\(minutes) \(periodString)"
+            return "\(periodString)\(hourString):\(minutes)"
         } else {
-            return "\(hourString):0\(minutes) \(periodString)"
+            return "\(periodString)\(hourString):0\(minutes)"
         }
     case .military:
         return String(format: "%02d:%02d", arguments: [Int(hours), Int(minutes)])

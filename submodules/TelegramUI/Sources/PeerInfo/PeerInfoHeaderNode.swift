@@ -115,7 +115,9 @@ final class PeerInfoHeaderButtonNode: HighlightableButtonNode {
     
     @objc private func buttonPressed() {
         switch self.icon {
-            case .voiceChat, .more, .leave:
+//            case .voiceChat, .more, .leave:
+//                self.animationNode?.playOnce()
+            case .more, .leave:
                 self.animationNode?.playOnce()
             default:
                 break
@@ -133,7 +135,10 @@ final class PeerInfoHeaderButtonNode: HighlightableButtonNode {
             self.icon = icon
             
             var isGestureEnabled = false
-            if [.mute, .voiceChat, .more].contains(icon) {
+//            if [.mute, .voiceChat, .more].contains(icon) {
+//                isGestureEnabled = true
+//            }
+            if [.mute, .more].contains(icon) {
                 isGestureEnabled = true
             }
             self.containerNode.isGestureEnabled = isGestureEnabled
@@ -144,11 +149,11 @@ final class PeerInfoHeaderButtonNode: HighlightableButtonNode {
             var seekToEnd = false
             let iconColor = presentationData.theme.list.itemCheckColors.foregroundColor
             switch icon {
-                case .voiceChat:
-                    animationName = "anim_profilevc"
-                    colors = ["Line 3.Group 1.Stroke 1": iconColor,
-                              "Line 1.Group 1.Stroke 1": iconColor,
-                              "Line 2.Group 1.Stroke 1": iconColor]
+//                case .voiceChat:
+//                    animationName = "anim_profilevc"
+//                    colors = ["Line 3.Group 1.Stroke 1": iconColor,
+//                              "Line 1.Group 1.Stroke 1": iconColor,
+//                              "Line 2.Group 1.Stroke 1": iconColor]
                 case .mute:
                     animationName = "anim_profileunmute"
                     colors = ["Middle.Group 1.Fill 1": iconColor,
@@ -210,9 +215,14 @@ final class PeerInfoHeaderButtonNode: HighlightableButtonNode {
             } else if seekToEnd {
                 self.animationNode?.seekToEnd()
             }
-                        
-            self.backgroundNode.image = generateFilledCircleImage(diameter: 40.0, color: presentationData.theme.list.itemAccentColor)
-            self.iconNode.image = generateImage(CGSize(width: 40.0, height: 40.0), contextGenerator: { size, context in
+            #warning("修改按钮背景颜色")
+            self.backgroundNode.image = generateFilledCircleImage(diameter: 40.0, color: defaultDayAccentColor)
+            
+            if icon == .voiceChat {
+                self.iconNode.image = UIImage(bundleImageName: "Peer Info/voiceCallsIcon")
+            }else{
+            
+                self.iconNode.image = generateImage(CGSize(width: 40.0, height: 40.0), contextGenerator: { size, context in
                 context.clear(CGRect(origin: CGPoint(), size: size))
                 context.setBlendMode(.normal)
                 context.setFillColor(presentationData.theme.list.itemCheckColors.foregroundColor.cgColor)
@@ -225,7 +235,7 @@ final class PeerInfoHeaderButtonNode: HighlightableButtonNode {
                 case .videoCall:
                     imageName = "Peer Info/ButtonVideo"
                 case .voiceChat:
-                    imageName = nil
+                    imageName = "Peer Info/voiceCallsIcon"
                 case .mute:
                     imageName = nil
                 case .unmute:
@@ -239,12 +249,14 @@ final class PeerInfoHeaderButtonNode: HighlightableButtonNode {
                 case .leave:
                     imageName = nil
                 }
+                
                 if let imageName = imageName, let image = generateTintedImage(image: UIImage(bundleImageName: imageName), color: .white) {
                     let imageRect = CGRect(origin: CGPoint(x: floor((size.width - image.size.width) / 2.0), y: floor((size.height - image.size.height) / 2.0)), size: image.size)
                     context.clip(to: imageRect, mask: image.cgImage!)
                     context.fill(imageRect)
                 }
             })
+            }
         }
         
         let alpha: CGFloat = isActive ? 1.0 : 0.3
@@ -256,7 +268,7 @@ final class PeerInfoHeaderButtonNode: HighlightableButtonNode {
             }
         }
         
-        self.textNode.attributedText = NSAttributedString(string: text, font: Font.regular(12.0), textColor: presentationData.theme.list.itemAccentColor)
+        self.textNode.attributedText = NSAttributedString(string: text, font: Font.regular(12.0), textColor: presentationData.theme.list.itemPrimaryTextColor)
         self.accessibilityLabel = text
         let titleSize = self.textNode.updateLayout(CGSize(width: 120.0, height: .greatestFiniteMagnitude))
         
@@ -396,8 +408,21 @@ final class PeerInfoAvatarTransformContainerNode: ASDisplayNode {
             self.avatarNode.setPeer(context: self.context, theme: theme, peer: peer, overrideImage: overrideImage, synchronousLoad: self.isFirstAvatarLoading, displayDimensions: CGSize(width: avatarSize, height: avatarSize), storeUnrounded: true)
             self.isFirstAvatarLoading = false
             
-            self.containerNode.frame = CGRect(origin: CGPoint(x: -avatarSize / 2.0, y: -avatarSize / 2.0), size: CGSize(width: avatarSize, height: avatarSize))
-            self.avatarNode.frame = self.containerNode.bounds
+            #warning("如果是设置页面 更改头像位置")
+//            if isSettings {
+//
+//                let containerNodeOrigin = CGPoint(x: -(UIScreen.main.bounds.width/2.0)+33, y: (-avatarSize / 2.0) + 40)
+//                let containerNodeSize = CGSize(width: avatarSize, height: avatarSize)
+//
+//                self.containerNode.frame = CGRect(origin:  containerNodeOrigin, size: containerNodeSize)
+//                self.avatarNode.frame = self.containerNode.bounds
+//            }else{
+                self.containerNode.frame = CGRect(origin: CGPoint(x: -avatarSize / 2.0, y: -avatarSize / 2.0), size: CGSize(width: avatarSize, height: avatarSize))
+                self.avatarNode.frame = self.containerNode.bounds
+//            }
+            
+            
+
             self.avatarNode.font = avatarPlaceholderFont(size: floor(avatarSize * 16.0 / 37.0))
 
             if let item = item {
@@ -773,6 +798,7 @@ final class PeerInfoEditingAvatarNode: ASDisplayNode {
 final class PeerInfoAvatarListNode: ASDisplayNode {
     private let isSettings: Bool
     let pinchSourceNode: PinchSourceContainerNode
+    //头像视图
     let avatarContainerNode: PeerInfoAvatarTransformContainerNode
     let listContainerTransformNode: ASDisplayNode
     let listContainerNode: PeerInfoAvatarListContainerNode
@@ -1579,9 +1605,9 @@ final class PeerInfoHeaderEditingContentNode: ASDisplayNode {
                 isEnabled = isContact || isSettings
             case .title:
                 if let channel = peer as? TelegramChannel, case .broadcast = channel.info {
-                    placeholder = presentationData.strings.GroupInfo_ChannelListNamePlaceholder
+                    placeholder = "更改名称"
                 } else {
-                    placeholder = presentationData.strings.GroupInfo_GroupNamePlaceholder
+                    placeholder = "群名称"
                 }
                 isEnabled = canEditPeerInfo(context: self.context, peer: peer)
             case .description:
@@ -1669,16 +1695,30 @@ final class PeerInfoHeaderNode: ASDisplayNode {
     init(context: AccountContext, avatarInitiallyExpanded: Bool, isOpenedFromChat: Bool, isSettings: Bool) {
         self.context = context
         self.isAvatarExpanded = avatarInitiallyExpanded
+//
+//        self.isAvatarExpanded = true
+        
         self.isOpenedFromChat = isOpenedFromChat
         self.isSettings = isSettings
         self.videoCallsEnabled = VideoCallsConfiguration(appConfiguration: context.currentAppConfiguration.with { $0 }).areVideoCallsEnabled
         
+        //头像view
         self.avatarListNode = PeerInfoAvatarListNode(context: context, readyWhenGalleryLoads: avatarInitiallyExpanded, isSettings: isSettings)
-        
+//        self.avatarListNode.backgroundColor = UIColor.yellow
+        //姓名
         self.titleNodeContainer = ASDisplayNode()
+        
+//        self.titleNodeContainer.backgroundColor = UIColor.green
+        
         self.titleNodeRawContainer = ASDisplayNode()
+        
+//        self.titleNodeRawContainer.backgroundColor = UIColor.red
+        
         self.titleNode = MultiScaleTextNode(stateKeys: [TitleNodeStateRegular, TitleNodeStateExpanded])
         self.titleNode.displaysAsynchronously = false
+        
+        //头部北京颜色
+//        self.titleNode.backgroundColor = UIColor.purple
         
         self.titleCredibilityIconNode = ASImageNode()
         self.titleCredibilityIconNode.displaysAsynchronously = false
@@ -1695,12 +1735,20 @@ final class PeerInfoHeaderNode: ASDisplayNode {
         self.subtitleNode = MultiScaleTextNode(stateKeys: [TitleNodeStateRegular, TitleNodeStateExpanded])
         self.subtitleNode.displaysAsynchronously = false
         
+        //
+//        self.subtitleNode.backgroundColor = UIColor.yellow
+        
         self.usernameNodeContainer = ASDisplayNode()
         self.usernameNodeRawContainer = ASDisplayNode()
         self.usernameNode = MultiScaleTextNode(stateKeys: [TitleNodeStateRegular, TitleNodeStateExpanded])
         self.usernameNode.displaysAsynchronously = false
         
+//        self.usernameNode.backgroundColor = UIColor.blue
+        
         self.regularContentNode = PeerInfoHeaderRegularContentNode()
+        //
+//        self.regularContentNode.backgroundColor = UIColor.orange
+        
         var requestUpdateLayoutImpl: (() -> Void)?
         self.editingContentNode = PeerInfoHeaderEditingContentNode(context: context, requestUpdateLayout: {
             requestUpdateLayoutImpl?()
@@ -1747,7 +1795,8 @@ final class PeerInfoHeaderNode: ASDisplayNode {
         self.regularContentNode.addSubnode(self.avatarListNode.listContainerNode.controlsClippingOffsetNode)
         self.addSubnode(self.regularContentNode)
         self.addSubnode(self.editingContentNode)
-        self.addSubnode(self.avatarOverlayNode)
+        #warning("去除上传中的loading 状态 因为位置错位问题")
+//        self.addSubnode(self.avatarOverlayNode)
         self.addSubnode(self.navigationBackgroundNode)
         self.navigationBackgroundNode.addSubnode(self.navigationTitleNode)
         self.navigationBackgroundNode.addSubnode(self.navigationSeparatorNode)
@@ -1795,6 +1844,8 @@ final class PeerInfoHeaderNode: ASDisplayNode {
         
         let phoneGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(self.handlePhoneLongPress(_:)))
         self.subtitleNodeRawContainer.view.addGestureRecognizer(phoneGestureRecognizer)
+        
+//        self.backgroundColor = UIColor.red
     }
     
     @objc private func handleUsernameLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
@@ -2022,11 +2073,17 @@ final class PeerInfoHeaderNode: ASDisplayNode {
             subtitleString = NSAttributedString(string: " ", font: Font.regular(15.0), textColor: presentationData.theme.list.itemSecondaryTextColor)
             usernameString = NSAttributedString(string: "", font: Font.regular(15.0), textColor: presentationData.theme.list.itemSecondaryTextColor)
         }
-        
+        #warning("上面可以获取用户的名字 titleString.string跟 手机号subtitleString.string ")
         let textSideInset: CGFloat = 44.0
         let expandedAvatarHeight: CGFloat = expandedAvatarListSize.height + expandedAvatarControlsHeight
         
-        let titleConstrainedSize = CGSize(width: width - textSideInset * 2.0 - (isVerified ? 16.0 : 0.0), height: .greatestFiniteMagnitude)
+        //修改布局
+        
+        var titleConstrainedSize = CGSize(width: width - textSideInset * 2.0 - (isVerified ? 16.0 : 0.0), height: .greatestFiniteMagnitude)
+        
+        if isSettings {
+            titleConstrainedSize = CGSize(width: width - textSideInset - 140 - (isVerified ? 16.0 : 0.0), height: .greatestFiniteMagnitude)
+        }
         
         let titleNodeLayout = self.titleNode.updateLayout(states: [
             TitleNodeStateRegular: MultiScaleTextState(attributedText: titleString, constrainedSize: titleConstrainedSize),
@@ -2046,8 +2103,14 @@ final class PeerInfoHeaderNode: ASDisplayNode {
         ], mainState: TitleNodeStateRegular)
         self.usernameNode.accessibilityLabel = usernameString.string
         
-        let avatarFrame = CGRect(origin: CGPoint(x: floor((width - avatarSize) / 2.0), y: statusBarHeight + 10.0), size: CGSize(width: avatarSize, height: avatarSize))
-        let avatarCenter = CGPoint(x: (1.0 - transitionFraction) * avatarFrame.midX + transitionFraction * transitionSourceAvatarFrame.midX, y: (1.0 - transitionFraction) * avatarFrame.midY + transitionFraction * transitionSourceAvatarFrame.midY)
+        var avatarFrame = CGRect(origin: CGPoint(x: floor((width - avatarSize) / 2.0), y: statusBarHeight + 10.0), size: CGSize(width: avatarSize, height: avatarSize))
+        var avatarCenter = CGPoint(x: (1.0 - transitionFraction) * avatarFrame.midX + transitionFraction * transitionSourceAvatarFrame.midX, y: (1.0 - transitionFraction) * avatarFrame.midY + transitionFraction * transitionSourceAvatarFrame.midY)
+        
+        #warning("更改头像位置")
+        if isSettings {
+            avatarFrame = CGRect(origin: CGPoint(x:35, y: statusBarHeight + avatarSize / 2.0), size: CGSize(width: avatarSize, height: avatarSize))
+            avatarCenter = CGPoint(x: (1.0 - transitionFraction) * avatarFrame.midX + transitionFraction * transitionSourceAvatarFrame.midX, y: (1.0 - transitionFraction) * avatarFrame.midY + transitionFraction * transitionSourceAvatarFrame.midY)
+        }
         
         let titleSize = titleNodeLayout[TitleNodeStateRegular]!.size
         let titleExpandedSize = titleNodeLayout[TitleNodeStateExpanded]!.size
@@ -2060,9 +2123,9 @@ final class PeerInfoHeaderNode: ASDisplayNode {
             transition.updateFrame(node: self.titleExpandedCredibilityIconNode, frame: CGRect(origin: CGPoint(x: titleExpandedSize.width + 4.0, y: floor((titleExpandedSize.height - image.size.height) / 2.0) + 1.0), size: image.size))
         }
         
-        let titleFrame: CGRect
-        let subtitleFrame: CGRect
-        let usernameFrame: CGRect
+        var titleFrame: CGRect
+        var subtitleFrame: CGRect
+        var usernameFrame: CGRect
         let usernameSpacing: CGFloat = 4.0
         var twoLineInfo = false
         if self.isAvatarExpanded {
@@ -2074,15 +2137,29 @@ final class PeerInfoHeaderNode: ASDisplayNode {
         } else {
             titleFrame = CGRect(origin: CGPoint(x: floor((width - titleSize.width) / 2.0), y: avatarFrame.maxY + 10.0 + (subtitleSize.height.isZero ? 11.0 : 0.0)), size: titleSize)
             
+            if isSettings {
+                titleFrame = CGRect(x: 150, y: avatarFrame.maxY - 10.0 - (subtitleSize.height.isZero ? 0.0 : subtitleSize.height + 11.0) - (usernameSize.height.isZero ? 0.0 : subtitleSize.height + 11.0), width: titleSize.width, height: titleSize.height)
+            }
             let totalSubtitleWidth = subtitleSize.width + usernameSpacing + usernameSize.width
             twoLineInfo = true
             if usernameSize.width == 0.0 || twoLineInfo {
                 subtitleFrame = CGRect(origin: CGPoint(x: floor((width - subtitleSize.width) / 2.0), y: titleFrame.maxY + 1.0), size: subtitleSize)
                 usernameFrame = CGRect(origin: CGPoint(x: floor((width - usernameSize.width) / 2.0), y: subtitleFrame.maxY + 1.0), size: usernameSize)
+                if isSettings {
+                    
+                    subtitleFrame = CGRect(x: 150, y: titleFrame.maxY + 1.0, width: subtitleSize.width, height: subtitleSize.height)
+                    usernameFrame = CGRect(x: 150, y: subtitleFrame.maxY + 1.0, width: usernameSize.width, height: usernameSize.height)
+                }
                 
             } else {
                 subtitleFrame = CGRect(origin: CGPoint(x: floor((width - totalSubtitleWidth) / 2.0), y: titleFrame.maxY + 1.0), size: subtitleSize)
                 usernameFrame = CGRect(origin: CGPoint(x: subtitleFrame.maxX + usernameSpacing, y: titleFrame.maxY + 1.0), size: usernameSize)
+                
+                if isSettings {
+                    
+                    subtitleFrame = CGRect(x: 150, y: titleFrame.maxY + 1.0, width: subtitleSize.width, height: subtitleSize.height)
+                    usernameFrame = CGRect(x: 150, y: titleFrame.maxY + 1.0, width: usernameSize.width, height: usernameSize.height)
+                }
             }
         }
         self.twoLineInfo = twoLineInfo
@@ -2258,7 +2335,8 @@ final class PeerInfoHeaderNode: ASDisplayNode {
                 let titleCenter = CGPoint(x: transitionFraction * transitionSourceTitleFrame.midX + (1.0 - transitionFraction) * titleFrame.midX, y: transitionFraction * transitionSourceTitleFrame.midY + (1.0 - transitionFraction) * titleFrame.midY)
                 let subtitleCenter = CGPoint(x: transitionFraction * transitionSourceSubtitleFrame.midX + (1.0 - transitionFraction) * subtitleFrame.midX, y: transitionFraction * transitionSourceSubtitleFrame.midY + (1.0 - transitionFraction) * subtitleFrame.midY)
                 
-                let rawTitleFrame = CGRect(origin: CGPoint(x: titleCenter.x - titleFrame.size.width * neutralTitleScale / 2.0, y: titleCenter.y - titleFrame.size.height * neutralTitleScale / 2.0), size: CGSize(width: titleFrame.size.width * neutralTitleScale, height: titleFrame.size.height * neutralTitleScale))
+                var rawTitleFrame = CGRect(origin: CGPoint(x: titleCenter.x - titleFrame.size.width * neutralTitleScale / 2.0, y: titleCenter.y - titleFrame.size.height * neutralTitleScale / 2.0), size: CGSize(width: titleFrame.size.width * neutralTitleScale, height: titleFrame.size.height * neutralTitleScale))
+
                 self.titleNodeRawContainer.frame = rawTitleFrame
                 transition.updateFrameAdditiveToCenter(node: self.titleNodeContainer, frame: CGRect(origin: rawTitleFrame.center, size: CGSize()))
                 transition.updateFrame(node: self.titleNode, frame: CGRect(origin: CGPoint(), size: CGSize()))

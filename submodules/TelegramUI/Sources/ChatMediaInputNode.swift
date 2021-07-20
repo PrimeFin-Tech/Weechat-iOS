@@ -500,6 +500,7 @@ final class ChatMediaInputNode: ChatInputNode {
         }
         
         self.gifListView = ListView()
+//        self.gifListView.backgroundColor = UIColor.red
         self.gifListView.transform = CATransform3DMakeRotation(-CGFloat(Double.pi / 2.0), 0.0, 0.0, 1.0)
         self.gifListView.scroller.panGestureRecognizer.cancelsTouchesInView = false
         self.gifListView.accessibilityPageScrolledString = { row, count in

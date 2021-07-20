@@ -85,6 +85,7 @@ public class ContactsController: ViewController {
     private let sortOrderPromise = Promise<ContactsSortOrder>()
     private let isInVoiceOver = ValuePromise<Bool>(false)
     
+    //顶部搜索框
     private var searchContentNode: NavigationBarSearchContentNode?
     
     public var switchToChatsController: (() -> Void)?
@@ -117,8 +118,10 @@ public class ContactsController: ViewController {
             icon = UIImage(bundleImageName: "Chat List/Tabs/IconContacts")
         }
         
+        let icon_d: UIImage? = UIImage(bundleImageName: "Chat List/Tabs/IconContacts_d")?.withRenderingMode(UIImage.RenderingMode.alwaysOriginal)
+        
         self.tabBarItem.image = icon
-        self.tabBarItem.selectedImage = icon
+        self.tabBarItem.selectedImage = icon_d
         
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.Common_Back, style: .plain, target: nil, action: nil)
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: PresentationResourcesRootController.navigationAddIcon(self.presentationData.theme), style: .plain, target: self, action: #selector(self.addPressed))
@@ -271,6 +274,7 @@ public class ContactsController: ViewController {
             }
         }
         
+        //取消 搜索 sss
         self.contactsNode.requestDeactivateSearch = { [weak self] in
             self?.deactivateSearch(animated: true)
         }
@@ -459,6 +463,7 @@ public class ContactsController: ViewController {
         }
     }
     
+    //排序弹框 sss
     private func presentSortMenu() {
         let updateSortOrder: (ContactsSortOrder) -> Void = { [weak self] sortOrder in
             if let strongSelf = self {

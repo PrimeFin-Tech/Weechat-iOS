@@ -265,9 +265,9 @@ static inline NSString *dialogTimeFormat()
         if (dateHas12hFormat())
         {
             if (hours < 12)
-                return [[NSString alloc] initWithFormat:@"%d:%02d AM", hours == 0 ? 12 : hours, minutes];
+                return [[NSString alloc] initWithFormat:@"上午%d:%02d", hours == 0 ? 12 : hours, minutes];
             else
-                return [[NSString alloc] initWithFormat:@"%d:%02d PM", (hours - 12 == 0) ? 12 : (hours - 12), minutes];
+                return [[NSString alloc] initWithFormat:@"下午%d:%02d", (hours - 12 == 0) ? 12 : (hours - 12), minutes];
         }
         else
             return [[NSString alloc] initWithFormat:@"%02d:%02d", hours, minutes];

@@ -125,9 +125,9 @@ final class OrderedItemListTable: Table {
             self.valueBox.set(self.table, key: self.keyIdToIndex(collectionId: collectionId, id: items[i].id), value: MemoryBuffer(memory: &indexValue, capacity: 4, length: 4, freeWhenDone: false))
             self.indexTable.set(collectionId: collectionId, id: items[i].id, content: items[i].contents)
         }
-        #if ((arch(i386) || arch(x86_64)) && os(iOS)) || DEBUG
-            assert(self.testIntegrity(collectionId: collectionId))
-        #endif
+//        #if ((arch(i386) || arch(x86_64)) && os(iOS)) || DEBUG
+//            assert(self.testIntegrity(collectionId: collectionId))
+//        #endif
     }
     
     func addItemOrMoveToFirstPosition(collectionId: Int32, item: OrderedItemListEntry, removeTailIfCountExceeds: Int?, operations: inout [Int32: [OrderedItemListOperation]]) {

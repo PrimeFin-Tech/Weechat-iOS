@@ -834,9 +834,9 @@ public class ItemListAvatarAndNameInfoItemNode: ListViewItemNode, ItemListItemNo
                                 let placeholder: String
                                 switch type {
                                     case .group:
-                                        placeholder = item.presentationData.strings.GroupInfo_GroupNamePlaceholder
+                                        placeholder = "群名称"
                                     case .channel:
-                                        placeholder = item.presentationData.strings.GroupInfo_ChannelListNamePlaceholder
+                                        placeholder = "更改名称"
                                 }
                                 strongSelf.inputFirstField?.attributedPlaceholder = NSAttributedString(string: placeholder, font: Font.regular(floor(item.presentationData.fontSize.itemListBaseFontSize * 19.0 / 17.0)), textColor: item.presentationData.theme.list.itemPlaceholderTextColor)
                                 if strongSelf.inputFirstField?.keyboardAppearance != keyboardAppearance {

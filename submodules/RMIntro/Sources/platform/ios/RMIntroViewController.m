@@ -114,7 +114,7 @@ static void TGDispatchOnMainThread(dispatch_block_t block) {
 }
 @end
 
-
+//引导页
 @implementation RMIntroViewController
 
 - (instancetype)initWithBackgroundColor:(UIColor *)backgroundColor primaryColor:(UIColor *)primaryColor buttonColor:(UIColor *)buttonColor accentColor:(UIColor *)accentColor regularDotColor:(UIColor *)regularDotColor highlightedDotColor:(UIColor *)highlightedDotColor suggestedLocalizationSignal:(SSignal *)suggestedLocalizationSignal
@@ -135,22 +135,28 @@ static void TGDispatchOnMainThread(dispatch_block_t block) {
         
         NSArray<NSString *> *stringKeys = @[
             @"Tour.Title1",
-            @"Tour.Title2",
-            @"Tour.Title3",
-            @"Tour.Title4",
-            @"Tour.Title5",
-            @"Tour.Title6",
+//            @"Tour.Title2",
+//            @"Tour.Title3",
+//            @"Tour.Title4",
+//            @"Tour.Title5",
+//            @"Tour.Title6",
             @"Tour.Text1",
-            @"Tour.Text2",
-            @"Tour.Text3",
-            @"Tour.Text4",
-            @"Tour.Text5",
-            @"Tour.Text6",
+//            @"Tour.Text2",
+//            @"Tour.Text3",
+//            @"Tour.Text4",
+//            @"Tour.Text5",
+//            @"Tour.Text6",
             @"Tour.StartButton"
         ];
         
+        NSString * codeN = @"en";
+        NSString * saveLanguageCodeNMN = [[NSUserDefaults standardUserDefaults] stringForKey:@"LanguageCodeNN"];
+        
+        if ([saveLanguageCodeNMN isEqualToString:@"zh-Hans"]) {
+            codeN = @"zh-Hans";
+        }
         NSMutableDictionary *englishStrings = [[NSMutableDictionary alloc] init];
-        NSBundle *bundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"en" ofType:@"lproj"]];
+        NSBundle *bundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:codeN ofType:@"lproj"]];
         for (NSString *key in stringKeys) {
             if (bundle != nil) {
                 NSString *value = [bundle localizedStringForKey:key value:key table:nil];
@@ -165,8 +171,9 @@ static void TGDispatchOnMainThread(dispatch_block_t block) {
         }
         _englishStrings = englishStrings;
         
-        _headlines = @[ _englishStrings[@"Tour.Title1"], _englishStrings[@"Tour.Title2"],  _englishStrings[@"Tour.Title6"], _englishStrings[@"Tour.Title3"], _englishStrings[@"Tour.Title4"], _englishStrings[@"Tour.Title5"]];
-        _descriptions = @[_englishStrings[@"Tour.Text1"], _englishStrings[@"Tour.Text2"],  _englishStrings[@"Tour.Text6"], _englishStrings[@"Tour.Text3"], _englishStrings[@"Tour.Text4"], _englishStrings[@"Tour.Text5"]];
+        //修改
+        _headlines = @[ _englishStrings[@"Tour.Title1"]];
+        _descriptions = @[_englishStrings[@"Tour.Text1"]];
         
         __weak RMIntroViewController *weakSelf = self;
         _didEnterBackgroundObserver = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidEnterBackgroundNotification object:nil queue:nil usingBlock:^(__unused NSNotification *notification)
@@ -182,6 +189,7 @@ static void TGDispatchOnMainThread(dispatch_block_t block) {
             [strongSelf startTimer];
         }];
         
+        //开始button
         _alternativeLanguageButton = [[TGModernButton alloc] init];
         _alternativeLanguageButton.modernHighlight = true;
         [_alternativeLanguageButton setTitleColor:accentColor];
@@ -266,6 +274,7 @@ static void TGDispatchOnMainThread(dispatch_block_t block) {
         _glkView.delegate = self;
         
         [self setupGL];
+        _glkView.hidden = YES;
         [self.view addSubview:_glkView];
         
         [self startTimer];
@@ -316,6 +325,9 @@ static void TGDispatchOnMainThread(dispatch_block_t block) {
     
     [self loadGL];
     
+    
+    
+    
     _pageScrollView = [[UIScrollView alloc]initWithFrame:self.view.bounds];
     _pageScrollView.clipsToBounds = true;
     _pageScrollView.opaque = true;
@@ -325,10 +337,12 @@ static void TGDispatchOnMainThread(dispatch_block_t block) {
     _pageScrollView.pagingEnabled = true;
     _pageScrollView.contentSize = CGSizeMake(_headlines.count * self.view.bounds.size.width, self.view.bounds.size.height);
     _pageScrollView.delegate = self;
+    
     [self.view addSubview:_pageScrollView];
     
     _pageViews = [NSMutableArray array];
     
+    //标题跟描述
     for (NSUInteger i = 0; i < _headlines.count; i++)
     {
         RMIntroPageView *p = [[RMIntroPageView alloc]initWithFrame:CGRectMake(i * self.view.bounds.size.width, 0, self.view.bounds.size.width, 0) headline:[_headlines objectAtIndex:i] description:[_descriptions objectAtIndex:i] color:_primaryColor];
@@ -337,42 +351,31 @@ static void TGDispatchOnMainThread(dispatch_block_t block) {
         [_pageViews addObject:p];
         [_pageScrollView addSubview:p];
     }
+    _pageScrollView.hidden = YES;
     [_pageScrollView setPage:0];
+
+   
+    UIImageView * imgV = [[UIImageView alloc] initWithFrame:CGRectMake((self.view.bounds.size.width-150)/2, self.navigationController.navigationBar.bounds.size.height+200, 150, 150)];
+    [self.view addSubview:imgV];
+    imgV.image = [UIImage imageNamed:@"intro_icon"];
     
+    UIImageView * imgV_Title = [[UIImageView alloc] initWithFrame:CGRectMake((self.view.bounds.size.width-145)/2, imgV.frame.origin.y+160+30, 145, 78)];
+//    290 156
+    [self.view addSubview:imgV_Title];
+    imgV_Title.image = [UIImage imageNamed:@"Snip20210618_1"];
+    
+    //开始按钮
     _startButton = [[UIButton alloc] init];
     _startButton.adjustsImageWhenDisabled = false;
     [_startButton setTitle:_englishStrings[@"Tour.StartButton"] forState:UIControlStateNormal];
     [_startButton.titleLabel setFont:TGMediumSystemFontOfSize(20.0f)];
     [_startButton setTitleColor:_backgroundColor forState:UIControlStateNormal];
-    static UIImage *buttonBackgroundImage = nil;
-    static UIImage *buttonHighlightedBackgroundImage = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        {
-            UIGraphicsBeginImageContextWithOptions(CGSizeMake(48.0, 48.0), false, 0.0f);
-            CGContextRef context = UIGraphicsGetCurrentContext();
-            CGContextSetFillColorWithColor(context, [_buttonColor CGColor]);
-            CGContextFillEllipseInRect(context, CGRectMake(0.0f, 0.0f, 48.0f, 48.0f));
-            buttonBackgroundImage = [UIGraphicsGetImageFromCurrentImageContext() stretchableImageWithLeftCapWidth:24 topCapHeight:24];
-            UIGraphicsEndImageContext();
-        }
-        {
-            UIGraphicsBeginImageContextWithOptions(CGSizeMake(48.0, 48.0), false, 0.0f);
-            CGContextRef context = UIGraphicsGetCurrentContext();
-            CGFloat hue = 0.0f;
-            CGFloat sat = 0.0f;
-            CGFloat bri = 0.0f;
-            [_buttonColor getHue:&hue saturation:&sat brightness:&bri alpha:nil];
-            UIColor *color = [[UIColor alloc] initWithHue:hue saturation:sat brightness:bri * 0.7 alpha:1.0];
-            CGContextSetFillColorWithColor(context, [color CGColor]);
-            CGContextFillEllipseInRect(context, CGRectMake(0.0f, 0.0f, 48.0f, 48.0f));
-            buttonHighlightedBackgroundImage = [UIGraphicsGetImageFromCurrentImageContext() stretchableImageWithLeftCapWidth:24 topCapHeight:24];
-            UIGraphicsEndImageContext();
-        }
-    });
+    
+    UIColor * startButtonColor = [UIColor colorWithRed:244/255.0 green:61/255.0 blue:47/255.0 alpha:1];
+    
     [_startButton setContentEdgeInsets:UIEdgeInsetsMake(0.0f, 20.0f, 0.0f, 20.0f)];
-    [_startButton setBackgroundImage:buttonBackgroundImage forState:UIControlStateNormal];
-    [_startButton setBackgroundImage:buttonHighlightedBackgroundImage forState:UIControlStateHighlighted];
+    _startButton.backgroundColor = startButtonColor;
+    _startButton.layer.cornerRadius = 8.0;
     [self.view addSubview:_startButton];
     [self.view addSubview:_alternativeLanguageButton];
     
@@ -382,6 +385,7 @@ static void TGDispatchOnMainThread(dispatch_block_t block) {
     [_pageControl setNumberOfPages:6];
     _pageControl.pageIndicatorTintColor = _regularDotColor;
     _pageControl.currentPageIndicatorTintColor = _highlightedDotColor;
+    _pageControl.hidden = YES;
     [self.view addSubview:_pageControl];
 }
 
@@ -519,7 +523,7 @@ static void TGDispatchOnMainThread(dispatch_block_t block) {
             
         case Inch65:
             glViewY = 62 + 85;
-            startButtonY = 75 + 30;
+            startButtonY = 75 + 30 ;
             pageY = 245 + 125;
             pageControlY = pageY + 160.0f;
             break;
@@ -527,7 +531,7 @@ static void TGDispatchOnMainThread(dispatch_block_t block) {
         default:
             break;
     }
-    
+    startButtonY += 100;
     if (!_alternativeLanguageButton.isHidden) {
         startButtonY += languageButtonSpread;
     }
@@ -535,8 +539,7 @@ static void TGDispatchOnMainThread(dispatch_block_t block) {
     _pageControl.frame = CGRectMake(0, pageControlY, self.view.bounds.size.width, 7);
     _glkView.frame = CGRectChangedOriginY(_glkView.frame, glViewY - statusBarHeight);
     
-    [_startButton sizeToFit];
-    _startButton.frame = CGRectMake(floor((self.view.bounds.size.width - _startButton.frame.size.width) / 2.0f), self.view.bounds.size.height - startButtonY - statusBarHeight, _startButton.frame.size.width, 48.0f);
+    _startButton.frame = CGRectMake(floor((self.view.bounds.size.width - 250) / 2.0f), self.view.bounds.size.height - startButtonY - statusBarHeight, 250, 48.0f);
     [_startButton addTarget:self action:@selector(startButtonPress) forControlEvents:UIControlEventTouchUpInside];
     
     _alternativeLanguageButton.frame = CGRectMake(floor((self.view.bounds.size.width - _alternativeLanguageButton.frame.size.width) / 2.0f), CGRectGetMaxY(_startButton.frame) + languageButtonOffset, _alternativeLanguageButton.frame.size.width, _alternativeLanguageButton.frame.size.height);

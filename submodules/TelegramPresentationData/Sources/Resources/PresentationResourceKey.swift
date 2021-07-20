@@ -224,6 +224,8 @@ public enum PresentationResourceKey: Int32 {
     case chatBubbleIncomingVideoCallButtonImage
     case chatBubbleOutgoingVideoCallButtonImage
         
+    case callListIncomingIcon
+    
     case callListOutgoingIcon
     case callListOutgoingVideoIcon
     case callListInfoButton

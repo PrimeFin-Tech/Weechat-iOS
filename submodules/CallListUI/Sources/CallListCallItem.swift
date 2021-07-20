@@ -218,6 +218,10 @@ class CallListCallItemNode: ItemListRevealOptionsItemNode {
         self.highlightedBackgroundNode.isLayerBacked = true
         
         self.avatarNode = AvatarNode(font: avatarFont)
+        
+//        self.avatarNode.backgroundColor = UIColor.red
+        
+        
         self.avatarNode.isLayerBacked = !smartInvertColorsEnabled()
         
         self.titleNode = TextNode()
@@ -474,11 +478,18 @@ class CallListCallItemNode: ItemListRevealOptionsItemNode {
             
             let nodeLayout = ListViewItemNodeLayout(contentSize: CGSize(width: params.width, height: titleLayout.size.height + titleSpacing + statusLayout.size.height + verticalInset * 2.0), insets: UIEdgeInsets(top: firstWithHeader ? 29.0 : 0.0, left: 0.0, bottom: 0.0, right: 0.0))
             
-            let outgoingVoiceIcon = PresentationResourcesCallList.outgoingIcon(item.presentationData.theme)
-            let outgoingVideoIcon = PresentationResourcesCallList.outgoingVideoIcon(item.presentationData.theme)
-            let infoIcon = PresentationResourcesCallList.infoButton(item.presentationData.theme)
             
-            let outgoingIcon = isVideo ? outgoingVideoIcon : outgoingVoiceIcon
+            let outgoingVoiceIcon = PresentationResourcesCallList.outgoingIcon(item.presentationData.theme)
+            
+            let incomingVoiceIcon =  PresentationResourcesCallList.incomingIcon(item.presentationData.theme)
+            
+            let outgoingVideoIcon = PresentationResourcesCallList.outgoingVideoIcon(item.presentationData.theme)
+            
+            
+            let infoIcon = PresentationResourcesCallList.infoButton(item.presentationData.theme)
+            //打入打出 图标 设置
+            let outgoingIcon = isVideo ? outgoingVideoIcon : (hasIncoming ? incomingVoiceIcon : outgoingVoiceIcon)
+            
             
             let contentSize = nodeLayout.contentSize
             
@@ -611,6 +622,9 @@ class CallListCallItemNode: ItemListRevealOptionsItemNode {
                                 transition.updateFrameAdditive(node: strongSelf.infoButtonNode, frame: CGRect(origin: CGPoint(x: revealOffset + params.width - infoIconRightInset - infoIcon.size.width, y: floor((nodeLayout.contentSize.height - infoIcon.size.height) / 2.0)), size: infoIcon.size))
                             }
                             transition.updateAlpha(node: strongSelf.infoButtonNode, alpha: item.editing ? 0.0 : 1.0)
+                            
+                            #warning("编辑状态 隐藏 打入打出的图片标记")
+                            transition.updateAlpha(node: strongSelf.typeIconNode, alpha: item.editing ? 0.0 : 1.0)
                             
                             let topHighlightInset: CGFloat = (first || !nodeLayout.insets.top.isZero) ? 0.0 : separatorHeight
                             strongSelf.backgroundNode.frame = CGRect(origin: CGPoint(x: 0.0, y: 0.0), size: CGSize(width: nodeLayout.contentSize.width, height: nodeLayout.contentSize.height))

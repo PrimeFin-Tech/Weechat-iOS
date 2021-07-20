@@ -57,7 +57,8 @@ private final class SpotlightIndexStorage {
         guard let enumerator = FileManager.default.enumerator(at: URL(fileURLWithPath: self.basePath), includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsSubdirectoryDescendants], errorHandler: nil) else {
             return
         }
-        
+        //二次修改
+        //获取通讯录 人员列表
         while let item = enumerator.nextObject() {
             guard let url = item as? NSURL else {
                 continue

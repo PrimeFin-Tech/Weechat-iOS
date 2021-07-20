@@ -89,7 +89,9 @@ private final class BubbleSettingsControllerNode: ASDisplayNode, UIScrollViewDel
             return UITracingLayerView()
         })
         
-        self.backgroundColor = self.presentationData.theme.list.plainBackgroundColor
+//        self.backgroundColor = self.presentationData.theme.list.plainBackgroundColor
+        
+        self.backgroundColor = .red
         
         self.maskNode.image = generateMaskImage(color: self.presentationData.theme.chatList.backgroundColor)
         

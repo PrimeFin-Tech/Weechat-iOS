@@ -67,6 +67,7 @@ final class TabBarControllerNode: ASDisplayNode {
         
         self.tabBarNode.updateTheme(theme)
         self.disabledOverlayNode.backgroundColor = theme.backgroundColor.withAlphaComponent(0.5)
+        
         self.toolbarNode?.updateTheme(theme)
     }
     

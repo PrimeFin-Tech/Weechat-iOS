@@ -233,10 +233,13 @@ public final class ContactsSearchContainerNode: SearchDisplayControllerContentNo
         
         self.themeAndStringsPromise = Promise((self.presentationData.theme, self.presentationData.strings))
         
+        //遮罩层 sss
         self.dimNode = ASDisplayNode()
         self.dimNode.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        //搜索结果列表
         self.listNode = ListView()
         self.listNode.backgroundColor = self.presentationData.theme.list.plainBackgroundColor
+        
         self.listNode.isHidden = true
         self.listNode.accessibilityPageScrolledString = { row, count in
             return presentationData.strings.VoiceOver_ScrollStatus(row, count).0

@@ -33,7 +33,8 @@ open class IconSwitchNode: ASDisplayNode {
             }
         }
     }
-    public var contentColor = UIColor(rgb: 0x42d451) {
+    //0x42d451 -> 0xF43D2F
+    public var contentColor = UIColor(rgb: 0xF43D2F) {
         didSet {
             if self.isNodeLoaded {
                 (self.view as! UISwitch).onTintColor = self.contentColor

@@ -182,7 +182,8 @@ private final class WindowRootViewController: UIViewController, UIViewController
     override func loadView() {
         self.view = WindowRootViewControllerView()
         self.view.isOpaque = false
-        self.view.backgroundColor = nil
+        self.view.backgroundColor = .orange
+        
         
         self.updatePreviewingRegistration()
     }
@@ -300,7 +301,6 @@ private final class NativeWindow: UIWindow, WindowHost {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        
         self.layoutSubviewsEvent?()
     }
     
@@ -439,5 +439,11 @@ public func nativeWindowHostView() -> (UIWindow & WindowHost, WindowHostView) {
         }
     }
     
+    // sss
+//    let backImg = UIImage.init(named: "screen3x")
+//    let backImgView = UIImageView.init(frame: hostView.containerView.frame)
+//    backImgView.image = backImg
+//    backImgView.backgroundColor = .orange
+//    hostView.containerView.addSubview(backImgView)
     return (window, hostView)
 }

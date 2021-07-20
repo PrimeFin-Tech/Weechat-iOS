@@ -1,0 +1,12 @@
+/* Localized versions of Info.plist keys */
+
+"NSContactsUsageDescription" = "小辣椒会不断将你的联系人上传到其高度加密的云服务器上，让你通过所有设备与朋友连接。";
+"NSLocationWhenInUseUsageDescription" = "当你把你的位置发送给你的朋友时，小辣椒需要访问给他们显示地图。";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "当您选择在聊天中与朋友分享您的实时位置时，小辣椒需要对您的位置进行后台访问，以便在实时分享期间保持位置的更新。";
+"NSLocationAlwaysUsageDescription" = "当您选择在聊天中与朋友分享您的实时位置时，小辣椒需要对您的位置进行后台访问，以便在实时分享期间保持位置的更新。你还需要这个来从Apple Watch发送位置信息。";
+"NSCameraUsageDescription" = "我们需要这个，这样你就可以拍照和分享照片和视频，以及视频通话。";
+"NSPhotoLibraryUsageDescription" = "我们需要它，这样你就可以分享照片库中的照片和视频。";
+"NSPhotoLibraryAddUsageDescription" = "我们需要这个，这样你就可以把照片和视频保存到你的照片库。";
+"NSMicrophoneUsageDescription" = "我们需要它，这样你就可以录制和分享语音信息和视频的声音。";
+"NSSiriUsageDescription" = "你可以用Siri发送信息。";
+"NSFaceIDUsageDescription" = "你可以使用Face ID来解锁应用程序。";

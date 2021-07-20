@@ -186,7 +186,7 @@ public final class PermissionController: ViewController {
                         }
                     }
                 case let .nearbyLocation(status):
-                    self.title = self.presentationData.strings.Permissions_PeopleNearbyTitle_v0
+                    self.title = self.presentationData.strings.Contacts_AddPeopleNearby
                     
                     if self.locationManager == nil {
                         self.locationManager = LocationManager()

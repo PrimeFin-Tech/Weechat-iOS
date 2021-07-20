@@ -107,6 +107,10 @@ public final class PresentationData: Equatable {
     public func withUpdated(theme: PresentationTheme) -> PresentationData {
         return PresentationData(strings: self.strings, theme: theme, autoNightModeTriggered: self.autoNightModeTriggered, chatWallpaper: self.chatWallpaper, chatFontSize: self.chatFontSize, chatBubbleCorners: self.chatBubbleCorners, listsFontSize: self.listsFontSize, dateTimeFormat: self.dateTimeFormat, nameDisplayOrder: self.nameDisplayOrder, nameSortOrder: self.nameSortOrder, disableAnimations: self.disableAnimations, largeEmoji: self.largeEmoji)
     }
+    #warning("添加修改 语音的方法")
+    public func withUpdated_String(strings: PresentationStrings) -> PresentationData {
+        return PresentationData(strings: strings, theme: self.theme, autoNightModeTriggered: self.autoNightModeTriggered, chatWallpaper: self.chatWallpaper, chatFontSize: self.chatFontSize, chatBubbleCorners: self.chatBubbleCorners, listsFontSize: self.listsFontSize, dateTimeFormat: self.dateTimeFormat, nameDisplayOrder: self.nameDisplayOrder, nameSortOrder: self.nameSortOrder, disableAnimations: self.disableAnimations, largeEmoji: self.largeEmoji)
+    }
     
     public static func ==(lhs: PresentationData, rhs: PresentationData) -> Bool {
         return lhs.strings === rhs.strings && lhs.theme === rhs.theme && lhs.autoNightModeTriggered == rhs.autoNightModeTriggered && lhs.chatWallpaper == rhs.chatWallpaper && lhs.chatFontSize == rhs.chatFontSize && lhs.chatBubbleCorners == rhs.chatBubbleCorners && lhs.listsFontSize == rhs.listsFontSize && lhs.dateTimeFormat == rhs.dateTimeFormat && lhs.disableAnimations == rhs.disableAnimations && lhs.largeEmoji == rhs.largeEmoji
@@ -298,12 +302,25 @@ public func currentPresentationDataAndSettings(accountManager: AccountManager, s
         let effectiveChatWallpaper: TelegramWallpaper = (themeSettings.themeSpecificChatWallpapers[coloredThemeIndex(reference: effectiveTheme, accentColor: effectiveColors)] ?? themeSettings.themeSpecificChatWallpapers[effectiveTheme.index]) ?? theme.chat.defaultWallpaper
         
         let dateTimeFormat = currentDateTimeFormat()
-        let stringsValue: PresentationStrings
+        var stringsValue: PresentationStrings
+        
         if let localizationSettings = localizationSettings {
-            stringsValue = PresentationStrings(primaryComponent: PresentationStringsComponent(languageCode: localizationSettings.primaryComponent.languageCode, localizedName: localizationSettings.primaryComponent.localizedName, pluralizationRulesCode: localizationSettings.primaryComponent.customPluralizationCode, dict: dictFromLocalization(localizationSettings.primaryComponent.localization)), secondaryComponent: localizationSettings.secondaryComponent.flatMap({ PresentationStringsComponent(languageCode: $0.languageCode, localizedName: $0.localizedName, pluralizationRulesCode: $0.customPluralizationCode, dict: dictFromLocalization($0.localization)) }), groupingSeparator: dateTimeFormat.groupingSeparator)
+//            stringsValue = PresentationStrings(primaryComponent: PresentationStringsComponent(languageCode: localizationSettings.primaryComponent.languageCode, localizedName: localizationSettings.primaryComponent.localizedName, pluralizationRulesCode: localizationSettings.primaryComponent.customPluralizationCode, dict: dictFromLocalization(localizationSettings.primaryComponent.localization)), secondaryComponent: localizationSettings.secondaryComponent.flatMap({ PresentationStringsComponent(languageCode: $0.languageCode, localizedName: $0.localizedName, pluralizationRulesCode: $0.customPluralizationCode, dict: dictFromLocalization($0.localization)) }), groupingSeparator: dateTimeFormat.groupingSeparator)
         } else {
             stringsValue = defaultPresentationStrings
         }
+        // 出问题了
+        #warning("获取设置的语言")
+        stringsValue = defaultPresentationStrings
+        
+        let deffff = UserDefaults.standard.string(forKey: "LanguageCodeNN")
+        if deffff == "zh-Hans"{
+            
+            stringsValue = defaultPresentationStrings
+        }else{
+            stringsValue = defaultPresentationStrings_en
+        }
+        
         let nameDisplayOrder = contactSettings.nameDisplayOrder
         let nameSortOrder = currentPersonNameSortOrder()
         
@@ -632,13 +649,26 @@ public func updatedPresentationData(accountManager: AccountManager, applicationI
                             localizationSettings = nil
                         }
                         
+                        
                         let dateTimeFormat = currentDateTimeFormat()
-                        let stringsValue: PresentationStrings
+                        var stringsValue: PresentationStrings
+                        /*
                         if let localizationSettings = localizationSettings {
                             stringsValue = PresentationStrings(primaryComponent: PresentationStringsComponent(languageCode: localizationSettings.primaryComponent.languageCode, localizedName: localizationSettings.primaryComponent.localizedName, pluralizationRulesCode: localizationSettings.primaryComponent.customPluralizationCode, dict: dictFromLocalization(localizationSettings.primaryComponent.localization)), secondaryComponent: localizationSettings.secondaryComponent.flatMap({ PresentationStringsComponent(languageCode: $0.languageCode, localizedName: $0.localizedName, pluralizationRulesCode: $0.customPluralizationCode, dict: dictFromLocalization($0.localization)) }), groupingSeparator: dateTimeFormat.groupingSeparator)
                         } else {
                             stringsValue = defaultPresentationStrings
                         }
+                        */
+                        stringsValue = defaultPresentationStrings
+                        
+                        let deffff = UserDefaults.standard.string(forKey: "LanguageCodeNN")
+                        if deffff == "zh-Hans"{
+                            
+                            stringsValue = defaultPresentationStrings
+                        }else{
+                            stringsValue = defaultPresentationStrings_en
+                        }
+                        
                         let nameDisplayOrder = contactSettings.nameDisplayOrder
                         let nameSortOrder = currentPersonNameSortOrder()
                         

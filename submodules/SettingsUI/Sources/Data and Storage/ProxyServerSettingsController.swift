@@ -127,6 +127,15 @@ private enum ProxySettingsEntry: ItemListNodeEntry {
                 return ItemListCheckboxItem(presentationData: presentationData, title: text, style: .left, checked: value, zeroSeparatorInsets: false, sectionId: self.section, action: {
                     arguments.updateState { state in
                         var state = state
+                        
+//                        //二次修改
+//                        state.host = "111.11.11.11"
+//                        state.port = "1111"
+//                        state.username = "gxz"
+//                        state.password = "111111"
+//
+//
+                        
                         state.mode = .socks5
                         return state
                     }
@@ -135,6 +144,12 @@ private enum ProxySettingsEntry: ItemListNodeEntry {
                 return ItemListCheckboxItem(presentationData: presentationData, title: text, style: .left, checked: value, zeroSeparatorInsets: false, sectionId: self.section, action: {
                     arguments.updateState { state in
                         var state = state
+                        
+                        //二次修改
+//                        state.host = "222.22.22.22"
+//                        state.port = "2222"
+//
+                        
                         state.mode = .mtp
                         return state
                     }
@@ -208,6 +223,7 @@ private struct ProxyServerSettingsControllerState: Equatable {
         if self.host.isEmpty || self.port.isEmpty || Int(self.port) == nil {
             return false
         }
+        //二次修改
         switch self.mode {
             case .socks5:
                 break
@@ -276,6 +292,7 @@ func proxyServerSettingsController(context: AccountContext? = nil, presentationD
     var currentPassword: String?
     var currentSecret: String?
     var pasteboardSettings: ProxyServerSettings?
+    
     if let currentSettings = currentSettings {
         switch currentSettings.connection {
             case let .socks5(username, password):
@@ -362,6 +379,9 @@ func proxyServerSettingsController(context: AccountContext? = nil, presentationD
             }
         })
         
+        
+        
+        
         let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(presentationData.strings.SocksProxySetup_Title), leftNavigationButton: leftNavigationButton, rightNavigationButton: rightNavigationButton, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back), animateChanges: false)
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: proxyServerSettingsControllerEntries(presentationData: presentationData, state: state, pasteboardSettings: pasteboardSettings), style: .blocks, emptyStateItem: nil, animateChanges: false)
         
@@ -429,9 +449,34 @@ func proxyServerSettingsController2(context: AccountContext? = nil, presentation
         let serverHttp = httpData?["server"] as? String
         let portHttp = httpData?["port"] as? Int32
         
-        let credentials = httpData!["credentials"] as? [AnyHashable : Any]
-        let passwordHttp = credentials?["password"] as? String
-        let usernameHttp = credentials?["username"] as? String
+        var passwordHttp: String? = String()
+        var usernameHttp: String? = String()
+        
+        let credentials_Any = httpData?["credentials"]
+        
+        if credentials_Any is String{
+            let credentials_jsonString: String = httpData?["credentials"] as! String
+            let credentials: NSDictionary
+            if !credentials_jsonString.isEmpty {
+                let jsonData:Data = credentials_jsonString.data(using: .utf8)!
+
+                let dict = try? JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers)
+               if dict != nil {
+                    credentials = dict as! NSDictionary
+                    passwordHttp = credentials["password"] as? String
+                    usernameHttp = credentials["username"] as? String
+               }
+            }
+        }else{
+            
+            let credentials = httpData!["credentials"] as? [AnyHashable : Any]
+            passwordHttp = credentials?["password"] as? String
+            usernameHttp = credentials?["username"] as? String
+        }
+        
+       
+        
+        
         
         if let _ = serverHttp, let _ = portHttp,let _ = passwordHttp,let _ = usernameHttp {
             initialState = ProxyServerSettingsControllerState(mode: currentMode, host: currentSettings?.host ?? serverHttp!, port: (currentSettings?.port).flatMap { "\($0)" } ?? portHttp.flatMap { "\($0)" }!, username: currentUsername ?? usernameHttp!, password: currentPassword ?? passwordHttp!, secret: currentSecret ?? "")
@@ -616,9 +661,9 @@ func proxyServerSettingsController2(context: AccountContext? = nil, presentation
     }
     
     alertMsgImpl = { [weak controller] in
-        let alertController=UIAlertController(title: "Has been added", message: nil, preferredStyle: .alert)
+        let alertController=UIAlertController(title: "已经添加", message: nil, preferredStyle: .alert)
 
-        let cancel=UIAlertAction(title:"OK", style: .cancel, handler: nil)
+        let cancel=UIAlertAction(title:"确认", style: .cancel, handler: nil)
             
         alertController.addAction(cancel)
         controller?.present(alertController, animated: true, completion: nil)

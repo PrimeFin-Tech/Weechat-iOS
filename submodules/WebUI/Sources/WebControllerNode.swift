@@ -29,7 +29,7 @@ final class WebControllerNode: ViewControllerTracingNode {
     
     func containerLayoutUpdated(_ layout: ContainerViewLayout, transition: ContainedViewLayoutTransition) {
         transition.animateView {
-            self.webView.frame = CGRect(origin: CGPoint(x: 0.0, y: 0.0), size: CGSize(width: layout.size.width, height: max(1.0, layout.size.height)))
+            self.webView.frame = CGRect(origin: CGPoint(x: 0.0, y: layout.statusBarHeight!), size: CGSize(width: layout.size.width, height: max(1.0, layout.size.height-layout.statusBarHeight!)))
         }
     }
 }

@@ -368,7 +368,11 @@
     
     CAShapeLayer* maskLayer = [CAShapeLayer new];
     maskLayer.frame = _dotImageView.bounds;
-    maskLayer.path = [UIBezierPath bezierPathWithOvalInRect:_dotImageView.bounds].CGPath;
+    
+    maskLayer.path = [UIBezierPath bezierPathWithRect:_dotImageView.bounds].CGPath;
+    
+    
+//    maskLayer.path = [UIBezierPath bezierPathWithOvalInRect:_dotImageView.bounds].CGPath;
     _dotImageView.layer.mask = maskLayer;
     
     UITapGestureRecognizer *dotTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDotTap)];

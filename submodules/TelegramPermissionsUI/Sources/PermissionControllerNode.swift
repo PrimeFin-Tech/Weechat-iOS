@@ -198,7 +198,7 @@ final class PermissionControllerNode: ASDisplayNode {
                                     hasPrivacyPolicy = false
                                 case let .nearbyLocation(status):
                                     icon = nil
-                                    title = self.presentationData.strings.Permissions_PeopleNearbyTitle_v0
+                                    title = ""
                                     text = self.presentationData.strings.Permissions_PeopleNearbyText_v0
                                     if status == .denied {
                                         buttonTitle = self.presentationData.strings.Permissions_PeopleNearbyAllowInSettings_v0

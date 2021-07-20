@@ -12,6 +12,23 @@ import ContactListUI
 import CallListUI
 import ChatListUI
 import SettingsUI
+
+import TelegramCallsUI
+import TelegramUIPreferences
+import DeviceLocationManager
+import LegacyUI
+
+import PeersNearbyUI
+import PeerInfoUI
+
+import UrlHandling
+import LegacyMediaPickerUI
+import LocalMediaResources
+import OverlayStatusController
+import AlertUI
+import PresentationDataUtils
+
+
 import AppBundle
 import DatePickerNode
 import DebugSettingsUI
@@ -20,6 +37,9 @@ public final class TelegramRootController: NavigationController {
     private let context: AccountContext
     
     public var rootTabController: TabBarController?
+    
+    
+    public var proxySettingsController :ViewController?
     
     public var contactsController: ContactsController?
     public var callListController: CallListController?
@@ -88,21 +108,32 @@ public final class TelegramRootController: NavigationController {
         if let sharedContext = self.context.sharedContext as? SharedAccountContextImpl {
             chatListController.tabBarItem.badgeValue = sharedContext.switchingData.chatListBadge
         }
+        
         let callListController = CallListController(context: self.context, mode: .tab)
         
         var controllers: [ViewController] = []
         
+        //二次修改 添加tab
+        let proxySettingsController = self.context.sharedContext.makeProxySettingsController(context: self.context)
+//        controllers.append(proxySettingsController)
+        
+        //通讯录页面
         let contactsController = ContactsController(context: self.context)
         contactsController.switchToChatsController = {  [weak self] in
             self?.openChatsController(activateSearch: false)
         }
         controllers.append(contactsController)
         
+        //二次修改
+        //通话页面
         if showCallsTab {
             controllers.append(callListController)
         }
+        
+        //聊天页面
         controllers.append(chatListController)
         
+        //设置页面
         var restoreSettignsController: (ViewController & SettingsController)?
         if let sharedContext = self.context.sharedContext as? SharedAccountContextImpl {
             restoreSettignsController = sharedContext.switchingData.settingsController
@@ -120,8 +151,10 @@ public final class TelegramRootController: NavigationController {
             accountSettingsController.push(debugController(sharedContext: strongSelf.context.sharedContext, context: strongSelf.context))
         }
         controllers.append(accountSettingsController)
-        
+        //二次修改
+//        tabBarController.setControllers(controllers, selectedIndex: restoreSettignsController != nil ? (controllers.count - 1) : (controllers.count - 2))
         tabBarController.setControllers(controllers, selectedIndex: restoreSettignsController != nil ? (controllers.count - 1) : (controllers.count - 2))
+        self.proxySettingsController = proxySettingsController
         
         self.contactsController = contactsController
         self.callListController = callListController
@@ -136,6 +169,7 @@ public final class TelegramRootController: NavigationController {
             return
         }
         var controllers: [ViewController] = []
+//        controllers.append(self.proxySettingsController!)
         controllers.append(self.contactsController!)
         if showCallsTab {
             controllers.append(self.callListController!)

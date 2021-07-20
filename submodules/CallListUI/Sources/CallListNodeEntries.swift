@@ -221,8 +221,8 @@ func callListNodeEntriesForView(view: CallListView, groupCalls: [Peer], state: C
         }
         
         if showSettings {
-            result.append(.displayTabInfo(state.presentationData.theme, state.presentationData.strings.CallSettings_TabIconDescription))
-            result.append(.displayTab(state.presentationData.theme, state.presentationData.strings.CallSettings_TabIcon, showCallsTab))
+//            result.append(.displayTabInfo(state.presentationData.theme, state.presentationData.strings.CallSettings_TabIconDescription))
+//            result.append(.displayTab(state.presentationData.theme, state.presentationData.strings.CallSettings_TabIcon, showCallsTab))
         }
     }
     return result

@@ -319,7 +319,8 @@ public func generateTintedImage(image: UIImage?, color: UIColor, backgroundColor
     guard let image = image else {
         return nil
     }
-    
+    //sss
+    /*
     let imageSize = image.size
 
     UIGraphicsBeginImageContextWithOptions(imageSize, backgroundColor != nil, image.scale)
@@ -340,10 +341,14 @@ public func generateTintedImage(image: UIImage?, color: UIColor, backgroundColor
         context.restoreGState()
     }
     
+ 
     let tintedImage = UIGraphicsGetImageFromCurrentImageContext()!
     UIGraphicsEndImageContext()
+ 
     
     return tintedImage
+ */
+    return image
 }
 
 public func generateGradientTintedImage(image: UIImage?, colors: [UIColor]) -> UIImage? {

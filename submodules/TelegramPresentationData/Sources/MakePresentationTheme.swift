@@ -44,8 +44,15 @@ public func makePresentationTheme(mediaBox: MediaBox, themeReference: Presentati
     let theme: PresentationTheme
     switch themeReference {
         case let .builtin(reference):
+            
+            //修改气泡的 背景颜色
             let defaultTheme = makeDefaultPresentationTheme(reference: reference, extendingThemeReference: extendingThemeReference, serviceBackgroundColor: serviceBackgroundColor, preview: preview)
-            theme = customizePresentationTheme(defaultTheme, editing: true, accentColor: accentColor, backgroundColors: backgroundColors, bubbleColors: bubbleColors, wallpaper: wallpaper)
+            
+            let accentCor = UIColor.red
+            let bubbleCors = (accentCor.withMultiplied(hue: 0.966, saturation: 0.61, brightness: 0.98),accentCor)
+
+//            theme = customizePresentationTheme(defaultTheme, editing: true, accentColor: accentColor, backgroundColors: backgroundColors, bubbleColors: bubbleColors, wallpaper: wallpaper)
+            theme = customizePresentationTheme(defaultTheme, editing: true, accentColor: accentColor, backgroundColors: backgroundColors, bubbleColors: bubbleCors, wallpaper: wallpaper)
         case let .local(info):
             if let path = mediaBox.completedResourcePath(info.resource), let data = try? Data(contentsOf: URL(fileURLWithPath: path), options: .mappedRead), let loadedTheme = makePresentationTheme(data: data, themeReference: themeReference, resolvedWallpaper: info.resolvedWallpaper) {
                 theme = customizePresentationTheme(loadedTheme, editing: false, accentColor: accentColor, backgroundColors: backgroundColors, bubbleColors: bubbleColors, wallpaper: wallpaper)

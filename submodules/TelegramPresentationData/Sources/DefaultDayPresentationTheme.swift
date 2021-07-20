@@ -4,9 +4,10 @@ import TelegramCore
 import SyncCore
 import TelegramUIPreferences
 
-public let defaultServiceBackgroundColor = UIColor(rgb: 0x000000, alpha: 0.3)
+#warning("把 0xe9e9e9 全部换成 CCCCCC")
+public let defaultServiceBackgroundColor = UIColor(rgb: 0x000000, alpha: 0.3) //UIColor(rgb: 0x000000, alpha: 0.3) 二次修改
 public let defaultPresentationTheme = makeDefaultDayPresentationTheme(serviceBackgroundColor: defaultServiceBackgroundColor, day: false, preview: false)
-public let defaultDayAccentColor = UIColor(rgb: 0x007ee5)
+public let defaultDayAccentColor = UIColor(rgb: 0xF43D2F) //0x007ee5
 
 public func customizeDefaultDayTheme(theme: PresentationTheme, editing: Bool, title: String?, accentColor: UIColor?, backgroundColors: (UIColor, UIColor?)?, bubbleColors: (UIColor, UIColor?)?, wallpaper forcedWallpaper: TelegramWallpaper? = nil, serviceBackgroundColor: UIColor?) -> PresentationTheme {
     if (theme.referenceTheme != .day && theme.referenceTheme != .dayClassic) {
@@ -27,7 +28,8 @@ public func customizeDefaultDayTheme(theme: PresentationTheme, editing: Bool, ti
     var bubbleColors = bubbleColors
     if bubbleColors == nil, editing {
         if day {
-            let accentColor = accentColor ?? defaultDayAccentColor
+//            let accentColor = accentColor ?? defaultDayAccentColor
+            let accentColor = defaultDayAccentColor
             bubbleColors = (accentColor.withMultiplied(hue: 0.966, saturation: 0.61, brightness: 0.98), accentColor)
         } else {
             if let accentColor = accentColor {
@@ -335,7 +337,7 @@ public func makeDefaultDayPresentationTheme(extendingThemeReference: Presentatio
     )
      
     let rootTabBar = PresentationThemeRootTabBar(
-        backgroundColor: UIColor(rgb: 0xf7f7f7),
+        backgroundColor: UIColor(rgb: 0xf7f7f7), 
         separatorColor: UIColor(rgb: 0xa3a3a3),
         iconColor: UIColor(rgb: 0x959595),
         selectedIconColor: UIColor(rgb: 0x007ee5),
@@ -358,7 +360,7 @@ public func makeDefaultDayPresentationTheme(extendingThemeReference: Presentatio
         badgeBackgroundColor: UIColor(rgb: 0xff3b30),
         badgeStrokeColor: UIColor(rgb: 0xff3b30),
         badgeTextColor: UIColor(rgb: 0xffffff),
-        segmentedBackgroundColor: UIColor(rgb: 0xe9e9e9),
+        segmentedBackgroundColor: UIColor(rgb: 0xCCCCCC), //修改颜色 0xe9e9e9 CCCCCC
         segmentedForegroundColor: UIColor(rgb: 0xf7f7f7),
         segmentedTextColor: UIColor(rgb: 0x000000),
         segmentedDividerColor: UIColor(rgb: 0xd6d6dc),
@@ -369,7 +371,7 @@ public func makeDefaultDayPresentationTheme(extendingThemeReference: Presentatio
     let navigationSearchBar = PresentationThemeNavigationSearchBar(
         backgroundColor: UIColor(rgb: 0xffffff),
         accentColor: UIColor(rgb: 0x007ee5),
-        inputFillColor: UIColor(rgb: 0xe9e9e9),
+        inputFillColor: UIColor(rgb: 0xCCCCCC),
         inputTextColor: UIColor(rgb: 0x000000),
         inputPlaceholderTextColor: UIColor(rgb: 0x8e8e93),
         inputIconColor: UIColor(rgb: 0x8e8e93),
@@ -388,7 +390,7 @@ public func makeDefaultDayPresentationTheme(extendingThemeReference: Presentatio
     let switchColors = PresentationThemeSwitch(
         frameColor: UIColor(rgb: 0xe9e9ea),
         handleColor: UIColor(rgb: 0xffffff),
-        contentColor: UIColor(rgb: 0x35c759),
+        contentColor: UIColor(rgb: 0xF43D2F),////0x67ce67 ->0xF43D2F
         positiveColor: UIColor(rgb: 0x00c900),
         negativeColor: UIColor(rgb: 0xff3b30)
     )
@@ -399,8 +401,8 @@ public func makeDefaultDayPresentationTheme(extendingThemeReference: Presentatio
         itemPrimaryTextColor: UIColor(rgb: 0x000000),
         itemSecondaryTextColor: UIColor(rgb: 0x8e8e93),
         itemDisabledTextColor: UIColor(rgb: 0x8e8e93),
-        itemAccentColor: UIColor(rgb: 0x007ee5),
-        itemHighlightedColor: UIColor(rgb: 0x00b12c),
+        itemAccentColor: UIColor(rgb: 0x0080C4), //修改字体主调颜色 原来是0x007ee5
+        itemHighlightedColor: UIColor(rgb: 0xF43D2F ),//绿色改 红色 0x00b12c ->
         itemDestructiveColor: UIColor(rgb: 0xff3b30),
         itemPlaceholderTextColor: UIColor(rgb: 0xc8c8ce),
         itemBlocksBackgroundColor: UIColor(rgb: 0xffffff),
@@ -437,8 +439,8 @@ public func makeDefaultDayPresentationTheme(extendingThemeReference: Presentatio
             controlColor: UIColor(rgb: 0x96979d)
         ),
         freePlainInputField: PresentationInputFieldTheme(
-            backgroundColor: UIColor(rgb: 0xe9e9e9),
-            strokeColor: UIColor(rgb: 0xe9e9e9),
+            backgroundColor: UIColor(rgb: 0xCCCCCC),
+            strokeColor: UIColor(rgb: 0xCCCCCC),
             placeholderColor: UIColor(rgb: 0x8e8d92),
             primaryColor: UIColor(rgb: 0x000000),
             controlColor: UIColor(rgb: 0xbcbcc0)
@@ -476,13 +478,13 @@ public func makeDefaultDayPresentationTheme(extendingThemeReference: Presentatio
         failedFillColor: UIColor(rgb: 0xff3b30),
         failedForegroundColor: UIColor(rgb: 0xffffff),
         muteIconColor: UIColor(rgb: 0xa7a7ad),
-        unreadBadgeActiveBackgroundColor: UIColor(rgb: 0x007ee5),
+        unreadBadgeActiveBackgroundColor: UIColor(rgb: 0xF43D2F), // 0x007ee5 替换成 #F43D2F
         unreadBadgeActiveTextColor: UIColor(rgb: 0xffffff),
         unreadBadgeInactiveBackgroundColor: UIColor(rgb: 0xb6b6bb),
         unreadBadgeInactiveTextColor: UIColor(rgb: 0xffffff),
         pinnedBadgeColor: UIColor(rgb: 0xb6b6bb),
         pinnedSearchBarColor: UIColor(rgb: 0xe5e5e5),
-        regularSearchBarColor: UIColor(rgb: 0xe9e9e9),
+        regularSearchBarColor: UIColor(rgb: 0xCCCCCC),
         sectionHeaderFillColor: UIColor(rgb: 0xf7f7f7),
         sectionHeaderTextColor: UIColor(rgb: 0x8e8e93),
         verifiedIconFillColor: UIColor(rgb: 0x007ee5),
@@ -654,7 +656,7 @@ public func makeDefaultDayPresentationTheme(extendingThemeReference: Presentatio
         panelBackgroundColor: UIColor(rgb: 0xf7f7f7),
         panelBackgroundColorNoWallpaper: UIColor(rgb: 0xffffff),
         panelSeparatorColor: UIColor(rgb: 0xb2b2b2),
-        panelControlAccentColor: UIColor(rgb: 0x007ee5),
+        panelControlAccentColor: UIColor(rgb: 0xF43D2F),//0x007ee5 -> #F43D2F
         panelControlColor: UIColor(rgb: 0x858e99),
         panelControlDisabledColor: UIColor(rgb: 0x727b87, alpha: 0.5),
         panelControlDestructiveColor: UIColor(rgb: 0xff3b30),
@@ -663,7 +665,7 @@ public func makeDefaultDayPresentationTheme(extendingThemeReference: Presentatio
         inputPlaceholderColor: UIColor(rgb: 0xbebec0),
         inputTextColor: UIColor(rgb: 0x000000),
         inputControlColor: UIColor(rgb: 0xa0a7b0),
-        actionControlFillColor: UIColor(rgb: 0x007ee5),
+        actionControlFillColor: UIColor(rgb: 0xF43D2F), //0x007ee5 ->#F43D2F
         actionControlForegroundColor: UIColor(rgb: 0xffffff),
         primaryTextColor: UIColor(rgb: 0x000000),
         secondaryTextColor: UIColor(rgb: 0x8e8e93),
@@ -698,8 +700,8 @@ public func makeDefaultDayPresentationTheme(extendingThemeReference: Presentatio
         fillColor: UIColor(rgb: 0xf7f7f7),
         strokeColor: UIColor(rgb: 0xc8c7cc),
         foregroundColor: UIColor(rgb: 0x88888d),
-        badgeBackgroundColor: UIColor(rgb: 0x007ee5),
-        badgeStrokeColor: UIColor(rgb: 0x007ee5),
+        badgeBackgroundColor: UIColor(rgb: 0xF43D2F),   //0x007ee5 -> #F43D2F
+        badgeStrokeColor: UIColor(rgb: 0xF43D2F),       //0x007ee5 -> #F43D2F
         badgeTextColor: UIColor(rgb: 0xffffff)
     )
     
@@ -721,13 +723,13 @@ public func makeDefaultDayPresentationTheme(extendingThemeReference: Presentatio
         opaqueItemHighlightedBackgroundColor: UIColor(white: 0.9, alpha: 1.0),
         itemHighlightedBackgroundColor: UIColor(white: 0.9, alpha: 0.7),
         opaqueItemSeparatorColor: UIColor(white: 0.9, alpha: 1.0),
-        standardActionTextColor: UIColor(rgb: 0x007ee5),
+        standardActionTextColor: UIColor(rgb: 0x0080C4),// 0x007ee5->#0080C4
         destructiveActionTextColor: UIColor(rgb: 0xff3b30),
         disabledActionTextColor: UIColor(rgb: 0xb3b3b3),
         primaryTextColor: UIColor(rgb: 0x000000),
         secondaryTextColor: UIColor(rgb: 0x5e5e5e),
         controlAccentColor: UIColor(rgb: 0x007ee5),
-        inputBackgroundColor: UIColor(rgb: 0xe9e9e9),
+        inputBackgroundColor: UIColor(rgb: 0xCCCCCC),
         inputHollowBackgroundColor: UIColor(rgb: 0xffffff),
         inputBorderColor: UIColor(rgb: 0xe4e4e6),
         inputPlaceholderColor: UIColor(rgb: 0x8e8d92),
@@ -780,7 +782,7 @@ public func makeDefaultDayPresentationTheme(extendingThemeReference: Presentatio
     )
     
     return PresentationTheme(
-        name: extendingThemeReference?.name ?? .builtin(day ? .day : .dayClassic),
+        name: extendingThemeReference?.name ?? .builtin(day ? .day : .nightAccent),
         index: extendingThemeReference?.index ?? PresentationThemeReference.builtin(day ? .day : .dayClassic).index,
         referenceTheme: day ? .day : .dayClassic,
         overallDarkAppearance: false,
